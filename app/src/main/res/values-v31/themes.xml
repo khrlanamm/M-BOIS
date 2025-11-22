@@ -3,6 +3,6 @@
     <style name="Theme.MBOIS" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">@color/cream_background</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowBackground">@color/cream_background</item>
+        <item name="android:windowSplashScreenBackground">@color/cream_background</item>
     </style>
 </resources>
