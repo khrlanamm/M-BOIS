@@ -1,10 +1,10 @@
 package com.kuartet.mbois
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -39,10 +40,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -59,6 +58,7 @@ import com.kuartet.mbois.ui.theme.White
 class ProfileActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContent {
             MBOISTheme {
                 ProfileScreen(
@@ -91,8 +91,9 @@ fun ProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(White)
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .shadow(elevation = 1.dp),
+                    .statusBarsPadding()
+                    .height(56.dp) // Set fixed height to match MainActivity
+                    .padding(horizontal = 16.dp), // Vertical padding removed as height is fixed
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
@@ -137,7 +138,6 @@ fun ProfileScreen(
                 contentAlignment = Alignment.Center
             ) {
                 if (user?.photoUrl != null) {
-                    // Placeholder logic if needed, or Coil implementation
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = "Foto Profil",
