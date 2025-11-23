@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
 
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {
-            startActivity(Intent(this, AuthActivity::class.java))
+            startActivity(Intent(this, OnBoardingActivity::class.java))
             finish()
             return
         }
