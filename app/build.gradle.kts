@@ -84,7 +84,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
     implementation(libs.androidx.navigation.compose)
-    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+    implementation(libs.generativeai)
+    implementation(libs.compose.markdown)
 
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

@@ -29,6 +29,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -55,6 +56,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -65,6 +68,7 @@ import com.kuartet.mbois.ui.theme.OrangePrimary
 import com.kuartet.mbois.ui.theme.PoppinsFontFamily
 import com.kuartet.mbois.ui.theme.White
 import com.kuartet.mbois.viewmodel.HomeViewModel
+import dev.jeziellago.compose.markdowntext.MarkdownText
 
 data class ChatMessage(
     val text: String,
@@ -368,11 +372,18 @@ fun InteractiveScreen(
                         }
                         if (isAiLoading) {
                             item {
-                                Box(modifier = Modifier.fillMaxWidth().padding(8.dp), contentAlignment = Alignment.CenterStart) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(24.dp),
-                                        color = OrangePrimary,
-                                        strokeWidth = 2.dp
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp),
+                                    contentAlignment = Alignment.CenterStart
+                                ) {
+                                    Text(
+                                        text = "Menyiapkan Jawaban...",
+                                        fontFamily = PoppinsFontFamily,
+                                        fontSize = 12.sp,
+                                        color = Color.Gray,
+                                        fontStyle = FontStyle.Italic
                                     )
                                 }
                             }
@@ -422,7 +433,10 @@ fun InteractiveScreen(
                             enabled = !isAiLoading,
                             modifier = Modifier
                                 .size(52.dp)
-                                .background(if (isAiLoading) Color.Gray else OrangePrimary, CircleShape)
+                                .background(
+                                    if (isAiLoading) Color.Gray else OrangePrimary,
+                                    CircleShape
+                                )
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.Send,
@@ -463,13 +477,18 @@ fun ChatBubble(message: ChatMessage) {
                 )
                 .padding(12.dp)
         ) {
-            Text(
-                text = message.text,
-                fontFamily = PoppinsFontFamily,
-                fontSize = 14.sp,
-                color = textColor,
-                lineHeight = 20.sp
-            )
+            SelectionContainer {
+                // Menggunakan MarkdownText agar bold, italic, dan list terender dengan benar
+                MarkdownText(
+                    markdown = message.text,
+                    style = TextStyle(
+                        fontFamily = PoppinsFontFamily,
+                        fontSize = 14.sp,
+                        color = textColor,
+                        lineHeight = 20.sp
+                    )
+                )
+            }
         }
     }
 }
