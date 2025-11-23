@@ -1,4 +1,4 @@
-# M-BOIS (Mobile-Based Object Interactive Scanner)
+# M-BOIS (Aplikasi Android Pendamping M-BOIS Kuartet)
 
 Aplikasi Android edukasi interaktif berbasis kartu AR (Augmented Reality) yang menggunakan teknologi AI untuk memberikan pengalaman belajar yang menarik dan inovatif.
 
