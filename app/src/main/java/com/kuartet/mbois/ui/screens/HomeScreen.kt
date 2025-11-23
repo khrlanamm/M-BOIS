@@ -7,22 +7,32 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
@@ -37,22 +47,28 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.google.firebase.auth.FirebaseAuth
 import com.kuartet.mbois.R
+import com.kuartet.mbois.ui.components.MboisCardItem
 import com.kuartet.mbois.ui.theme.BrownDark
 import com.kuartet.mbois.ui.theme.CreamBackground
 import com.kuartet.mbois.ui.theme.OrangePrimary
 import com.kuartet.mbois.ui.theme.PoppinsFontFamily
 import com.kuartet.mbois.ui.theme.White
+import com.kuartet.mbois.viewmodel.HomeUiState
+import com.kuartet.mbois.viewmodel.HomeViewModel
 
 @Composable
 fun HomeScreen(
-    onNavigateToProfile: () -> Unit
+    onNavigateToProfile: () -> Unit,
+    viewModel: HomeViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val user = FirebaseAuth.getInstance().currentUser
     var lastBackPressTime by remember { mutableLongStateOf(0L) }
+    val uiState by viewModel.uiState.collectAsState()
 
     BackHandler {
         val currentTime = System.currentTimeMillis()
@@ -72,7 +88,7 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .background(White)
                     .statusBarsPadding()
-                    .height(56.dp)
+                    .height(64.dp)
                     .padding(horizontal = 24.dp)
             ) {
                 Image(
@@ -139,10 +155,81 @@ fun HomeScreen(
             }
         }
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        )
+
+        when (val state = uiState) {
+            is HomeUiState.Loading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = OrangePrimary)
+                }
+            }
+            is HomeUiState.Error -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = state.message, color = BrownDark)
+                }
+            }
+            is HomeUiState.Success -> {
+                LazyColumn(
+                    contentPadding = PaddingValues(
+                        top = innerPadding.calculateTopPadding() + 16.dp,
+                        bottom = 100.dp,
+                        start = 16.dp,
+                        end = 16.dp
+                    ),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    state.groupedCards.forEach { (categoryName, cards) ->
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .padding(vertical = 12.dp)
+                                    .background(
+                                        color = OrangePrimary,
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                Text(
+                                    text = categoryName,
+                                    fontFamily = PoppinsFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 16.sp,
+                                    color = White
+                                )
+                            }
+                        }
+
+                        val chunkedCards = cards.chunked(2)
+                        items(chunkedCards) { rowCards ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                for (card in rowCards) {
+                                    Box(modifier = Modifier.weight(1f)) {
+                                        MboisCardItem(
+                                            card = card,
+                                            onClick = { /* Handle Click later */ }
+                                        )
+                                    }
+                                }
+                                if (rowCards.size == 1) {
+                                    Spacer(modifier = Modifier.weight(1f))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
