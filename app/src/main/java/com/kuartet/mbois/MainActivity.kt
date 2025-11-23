@@ -34,6 +34,8 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val auth = FirebaseAuth.getInstance()
 
+                val homeViewModel: HomeViewModel = viewModel()
+
                 var startDestination by remember {
                     mutableStateOf(
                         if (auth.currentUser != null) Screen.Home.route else Screen.OnBoarding.route
@@ -65,7 +67,6 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(Screen.Home.route) {
-                        val homeViewModel: HomeViewModel = viewModel()
                         HomeScreen(
                             viewModel = homeViewModel,
                             onNavigateToProfile = {
@@ -95,7 +96,6 @@ class MainActivity : ComponentActivity() {
                         route = Screen.Detail.route,
                         arguments = listOf(navArgument("cardId") { type = NavType.StringType })
                     ) { backStackEntry ->
-                        val homeViewModel: HomeViewModel = viewModel()
                         val cardId = backStackEntry.arguments?.getString("cardId") ?: ""
                         DetailScreen(
                             cardId = cardId,
@@ -113,7 +113,6 @@ class MainActivity : ComponentActivity() {
                         route = Screen.Interactive.route,
                         arguments = listOf(navArgument("cardId") { type = NavType.StringType })
                     ) { backStackEntry ->
-                        val homeViewModel: HomeViewModel = viewModel()
                         val cardId = backStackEntry.arguments?.getString("cardId") ?: ""
                         InteractiveScreen(
                             cardId = cardId,

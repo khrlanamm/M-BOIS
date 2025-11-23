@@ -23,7 +23,7 @@ class HomeViewModel : ViewModel() {
         fetchCards()
     }
 
-    private fun fetchCards() {
+    fun fetchCards() {
         viewModelScope.launch {
             _uiState.value = HomeUiState.Loading
             try {
@@ -44,10 +44,6 @@ class HomeViewModel : ViewModel() {
                 _uiState.value = HomeUiState.Error(e.message ?: "Terjadi kesalahan")
             }
         }
-    }
-
-    fun refreshCards() {
-        fetchCards()
     }
 
     fun getCardById(id: String): MboisCard? {

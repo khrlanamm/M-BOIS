@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.media.AudioAttributes
 import android.media.MediaPlayer
+import android.net.Uri
 import android.view.ViewGroup
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -32,7 +33,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -153,6 +153,43 @@ fun InteractiveScreen(
         }
     }
 
+    fun openIntentUrl(url: String) {
+        try {
+            val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
+
+            try {
+                context.startActivity(intent)
+                return
+            } catch (e: Exception) {
+            }
+
+            val sceneViewerUrl = intent.dataString
+            if (!sceneViewerUrl.isNullOrEmpty()) {
+                try {
+                    val viewIntent = Intent(Intent.ACTION_VIEW, Uri.parse(sceneViewerUrl))
+                    context.startActivity(viewIntent)
+                    return
+                } catch (e: Exception) {
+                }
+            }
+
+            val fallbackUrl = intent.getStringExtra("browser_fallback_url")
+            if (!fallbackUrl.isNullOrEmpty()) {
+                try {
+                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(fallbackUrl))
+                    context.startActivity(browserIntent)
+                    return
+                } catch (e: Exception) {
+                }
+            }
+
+            Toast.makeText(context, "Aplikasi AR tidak ditemukan", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(context, "Gagal membuka AR", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     Scaffold(
         containerColor = CreamBackground,
         topBar = {
@@ -215,34 +252,34 @@ fun InteractiveScreen(
                                     settings.domStorageEnabled = true
 
                                     webViewClient = object : WebViewClient() {
-                                        override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-                                            val url = request?.url?.toString() ?: return false
+
+                                        private fun handleUrl(url: String?): Boolean {
+                                            if (url == null) return false
 
                                             if (url.startsWith("intent://")) {
-                                                try {
-                                                    val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
-                                                    if (intent != null) {
-                                                        val info = context.packageManager.resolveActivity(intent, 0)
-                                                        if (info != null) {
-                                                            context.startActivity(intent)
-                                                            return true
-                                                        } else {
-                                                            val fallbackUrl = intent.getStringExtra("browser_fallback_url")
-                                                            if (fallbackUrl != null) {
-                                                                view?.loadUrl(fallbackUrl)
-                                                                return true
-                                                            }
-                                                        }
-                                                    }
-                                                } catch (e: Exception) {
-                                                    e.printStackTrace()
-                                                }
+                                                openIntentUrl(url)
                                                 return true
                                             }
 
                                             return false
                                         }
+
+                                        override fun shouldOverrideUrlLoading(
+                                            view: WebView?,
+                                            request: WebResourceRequest?
+                                        ): Boolean {
+                                            return handleUrl(request?.url?.toString())
+                                        }
+
+                                        @Deprecated("Deprecated in Java")
+                                        override fun shouldOverrideUrlLoading(
+                                            view: WebView?,
+                                            url: String?
+                                        ): Boolean {
+                                            return handleUrl(url)
+                                        }
                                     }
+
                                     loadUrl(card.arUrl)
                                 }
                             },
