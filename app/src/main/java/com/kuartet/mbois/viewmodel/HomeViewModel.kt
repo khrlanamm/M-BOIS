@@ -46,6 +46,10 @@ class HomeViewModel : ViewModel() {
         }
     }
 
+    fun refreshCards() {
+        fetchCards()
+    }
+
     fun getCardById(id: String): MboisCard? {
         val currentState = _uiState.value
         return if (currentState is HomeUiState.Success) {

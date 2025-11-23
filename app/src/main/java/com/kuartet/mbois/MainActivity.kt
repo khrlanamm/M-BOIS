@@ -19,6 +19,7 @@ import com.kuartet.mbois.navigation.Screen
 import com.kuartet.mbois.ui.screens.AuthScreen
 import com.kuartet.mbois.ui.screens.DetailScreen
 import com.kuartet.mbois.ui.screens.HomeScreen
+import com.kuartet.mbois.ui.screens.InteractiveScreen
 import com.kuartet.mbois.ui.screens.OnBoardingScreen
 import com.kuartet.mbois.ui.screens.ProfileScreen
 import com.kuartet.mbois.ui.theme.MBOISTheme
@@ -32,9 +33,6 @@ class MainActivity : ComponentActivity() {
             MBOISTheme {
                 val navController = rememberNavController()
                 val auth = FirebaseAuth.getInstance()
-
-                // Hoist ViewModel here to share data between Home and Detail
-                val homeViewModel: HomeViewModel = viewModel()
 
                 var startDestination by remember {
                     mutableStateOf(
@@ -67,6 +65,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(Screen.Home.route) {
+                        val homeViewModel: HomeViewModel = viewModel()
                         HomeScreen(
                             viewModel = homeViewModel,
                             onNavigateToProfile = {
@@ -96,8 +95,27 @@ class MainActivity : ComponentActivity() {
                         route = Screen.Detail.route,
                         arguments = listOf(navArgument("cardId") { type = NavType.StringType })
                     ) { backStackEntry ->
+                        val homeViewModel: HomeViewModel = viewModel()
                         val cardId = backStackEntry.arguments?.getString("cardId") ?: ""
                         DetailScreen(
+                            cardId = cardId,
+                            viewModel = homeViewModel,
+                            onBack = {
+                                navController.popBackStack()
+                            },
+                            onNavigateToInteractive = { id ->
+                                navController.navigate(Screen.Interactive.createRoute(id))
+                            }
+                        )
+                    }
+
+                    composable(
+                        route = Screen.Interactive.route,
+                        arguments = listOf(navArgument("cardId") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val homeViewModel: HomeViewModel = viewModel()
+                        val cardId = backStackEntry.arguments?.getString("cardId") ?: ""
+                        InteractiveScreen(
                             cardId = cardId,
                             viewModel = homeViewModel,
                             onBack = {

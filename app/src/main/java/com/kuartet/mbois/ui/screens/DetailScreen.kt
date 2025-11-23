@@ -50,7 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 import com.kuartet.mbois.ui.theme.BrownDark
 import com.kuartet.mbois.ui.theme.CreamBackground
 import com.kuartet.mbois.ui.theme.OrangePrimary
@@ -62,7 +62,8 @@ import com.kuartet.mbois.viewmodel.HomeViewModel
 fun DetailScreen(
     cardId: String,
     viewModel: HomeViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigateToInteractive: (String) -> Unit
 ) {
     val card = remember(cardId) { viewModel.getCardById(cardId) }
     val scrollState = rememberScrollState()
@@ -97,7 +98,7 @@ fun DetailScreen(
                 mediaPlayer.setDataSource(card!!.audioUrl)
                 mediaPlayer.prepareAsync()
                 mediaPlayer.setOnPreparedListener {
-                    // Audio ready
+
                 }
                 mediaPlayer.setOnCompletionListener {
                     isPlaying = false
@@ -162,7 +163,11 @@ fun DetailScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { },
+                onClick = {
+                    if (card != null) {
+                        onNavigateToInteractive(card.id)
+                    }
+                },
                 containerColor = OrangePrimary,
                 contentColor = White,
                 shape = CircleShape,
@@ -198,11 +203,25 @@ fun DetailScreen(
                         .clip(RoundedCornerShape(16.dp))
                         .background(White)
                 ) {
-                    AsyncImage(
+                    SubcomposeAsyncImage(
                         model = card.cardUrl,
                         contentDescription = card.name,
                         modifier = Modifier.fillMaxWidth(),
-                        contentScale = ContentScale.FillWidth
+                        contentScale = ContentScale.FillWidth,
+                        loading = {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(240.dp)
+                                    .background(Color.Gray.copy(alpha = 0.1f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    color = OrangePrimary,
+                                    modifier = Modifier.size(48.dp)
+                                )
+                            }
+                        }
                     )
                 }
 
