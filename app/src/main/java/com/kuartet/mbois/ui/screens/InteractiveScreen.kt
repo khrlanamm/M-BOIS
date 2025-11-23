@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -33,6 +34,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -43,8 +45,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -83,8 +85,10 @@ fun InteractiveScreen(
     var isAudioLoading by remember { mutableStateOf(false) }
     val mediaPlayer = remember { MediaPlayer() }
 
-    val messages = remember { mutableStateListOf<ChatMessage>() }
+    val messages = viewModel.chatMessages
+    val isAiLoading by viewModel.isAiLoading.collectAsState()
     var inputText by remember { mutableStateOf("") }
+    val listState = rememberLazyListState()
 
     DisposableEffect(Unit) {
         onDispose {
@@ -100,30 +104,31 @@ fun InteractiveScreen(
     }
 
     LaunchedEffect(card) {
-        if (card != null && messages.isEmpty()) {
-            messages.add(
-                ChatMessage(
-                    text = "Apa yang ingin kamu ketahui mengenai ${card.name} yang merupakan ${card.categoryName} Jawa Timur?",
-                    isUser = false
-                )
-            )
-        }
+        if (card != null) {
+            viewModel.initChatSession(card)
 
-        if (card != null && !card.audioUrl.isNullOrEmpty()) {
-            try {
-                mediaPlayer.setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .build()
-                )
-                mediaPlayer.setDataSource(card.audioUrl)
-                mediaPlayer.prepareAsync()
-                mediaPlayer.setOnPreparedListener { }
-                mediaPlayer.setOnCompletionListener { isPlaying = false }
-            } catch (e: Exception) {
-                e.printStackTrace()
+            if (!card.audioUrl.isNullOrEmpty()) {
+                try {
+                    mediaPlayer.setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .build()
+                    )
+                    mediaPlayer.setDataSource(card.audioUrl)
+                    mediaPlayer.prepareAsync()
+                    mediaPlayer.setOnPreparedListener { }
+                    mediaPlayer.setOnCompletionListener { isPlaying = false }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
+        }
+    }
+
+    LaunchedEffect(messages.size) {
+        if (messages.isNotEmpty()) {
+            listState.animateScrollToItem(messages.size - 1)
         }
     }
 
@@ -143,13 +148,6 @@ fun InteractiveScreen(
             }
         } catch (e: Exception) {
             Toast.makeText(context, "Gagal memutar audio", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    fun sendMessage() {
-        if (inputText.isNotBlank()) {
-            messages.add(ChatMessage(text = inputText, isUser = true))
-            inputText = ""
         }
     }
 
@@ -356,6 +354,7 @@ fun InteractiveScreen(
                     )
 
                     LazyColumn(
+                        state = listState,
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth()
@@ -366,6 +365,17 @@ fun InteractiveScreen(
                         items(messages) { message ->
                             ChatBubble(message)
                             Spacer(modifier = Modifier.height(12.dp))
+                        }
+                        if (isAiLoading) {
+                            item {
+                                Box(modifier = Modifier.fillMaxWidth().padding(8.dp), contentAlignment = Alignment.CenterStart) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(24.dp),
+                                        color = OrangePrimary,
+                                        strokeWidth = 2.dp
+                                    )
+                                }
+                            }
                         }
                     }
 
@@ -381,7 +391,7 @@ fun InteractiveScreen(
                             onValueChange = { inputText = it },
                             placeholder = {
                                 Text(
-                                    "Ketik pesanmu...",
+                                    "Tanya tentang ${card.name}...",
                                     fontFamily = PoppinsFontFamily,
                                     fontSize = 14.sp,
                                     color = Color.Gray
@@ -403,10 +413,16 @@ fun InteractiveScreen(
                         Spacer(modifier = Modifier.width(12.dp))
 
                         IconButton(
-                            onClick = { sendMessage() },
+                            onClick = {
+                                if (inputText.isNotBlank()) {
+                                    viewModel.sendChatMessage(inputText)
+                                    inputText = ""
+                                }
+                            },
+                            enabled = !isAiLoading,
                             modifier = Modifier
                                 .size(52.dp)
-                                .background(OrangePrimary, CircleShape)
+                                .background(if (isAiLoading) Color.Gray else OrangePrimary, CircleShape)
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.Send,
