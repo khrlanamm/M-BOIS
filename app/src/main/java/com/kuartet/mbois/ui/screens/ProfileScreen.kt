@@ -1,11 +1,6 @@
-package com.kuartet.mbois
+package com.kuartet.mbois.ui.screens
 
-import android.content.Intent
-import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -59,35 +54,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.google.firebase.auth.FirebaseAuth
+import com.kuartet.mbois.R
 import com.kuartet.mbois.ui.theme.BrownDark
 import com.kuartet.mbois.ui.theme.CreamBackground
-import com.kuartet.mbois.ui.theme.MBOISTheme
 import com.kuartet.mbois.ui.theme.OrangePrimary
 import com.kuartet.mbois.ui.theme.PoppinsFontFamily
 import com.kuartet.mbois.ui.theme.White
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-class ProfileActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            MBOISTheme {
-                ProfileScreen(
-                    onBack = { finish() },
-                    onLogout = {
-                        FirebaseAuth.getInstance().signOut()
-                        val intent = Intent(this, OnBoardingActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
-                        finish()
-                    }
-                )
-            }
-        }
-    }
-}
 
 @Composable
 fun ProfileScreen(

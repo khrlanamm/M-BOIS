@@ -1,10 +1,5 @@
-package com.kuartet.mbois
+package com.kuartet.mbois.ui.screens
 
-import android.content.Intent
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -50,33 +45,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kuartet.mbois.R
 import com.kuartet.mbois.ui.theme.BrownDark
 import com.kuartet.mbois.ui.theme.CreamBackground
-import com.kuartet.mbois.ui.theme.MBOISTheme
 import com.kuartet.mbois.ui.theme.OrangePrimary
 import com.kuartet.mbois.ui.theme.PoppinsFontFamily
 import com.kuartet.mbois.ui.theme.White
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-class OnBoardingActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            MBOISTheme {
-                OnBoardingScreen(
-                    onComplete = {
-                        val intent = Intent(this, AuthActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
-                        finish()
-                    }
-                )
-            }
-        }
-    }
-}
 
 data class OnBoardingPage(
     val title: String,
