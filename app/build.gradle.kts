@@ -87,6 +87,15 @@ dependencies {
     implementation(libs.generativeai)
     implementation(libs.compose.markdown)
 
+    implementation("androidx.camera:camera-core:1.3.1")
+    implementation("androidx.camera:camera-camera2:1.3.1")
+    implementation("androidx.camera:camera-lifecycle:1.3.1")
+    implementation("androidx.camera:camera-view:1.3.1")
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
+    implementation("com.google.guava:guava:31.1-android")
+
+    implementation("com.google.accompanist:accompanist-permissions:0.37.3")
+
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)

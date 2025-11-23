@@ -11,4 +11,5 @@ sealed class Screen(val route: String) {
     data object Interactive : Screen("interactive/{cardId}") {
         fun createRoute(cardId: String) = "interactive/$cardId"
     }
+    data object Scan : Screen("scan")
 }

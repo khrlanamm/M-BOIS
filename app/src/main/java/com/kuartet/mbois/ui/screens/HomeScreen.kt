@@ -64,6 +64,7 @@ import com.kuartet.mbois.viewmodel.HomeViewModel
 fun HomeScreen(
     onNavigateToProfile: () -> Unit,
     onNavigateToDetail: (String) -> Unit,
+    onNavigateToScan: () -> Unit,
     viewModel: HomeViewModel
 ) {
     val context = LocalContext.current
@@ -146,7 +147,7 @@ fun HomeScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { },
+                onClick = { onNavigateToScan() },
                 containerColor = OrangePrimary,
                 contentColor = White,
                 shape = CircleShape,

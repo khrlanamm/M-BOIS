@@ -22,6 +22,7 @@ import com.kuartet.mbois.ui.screens.HomeScreen
 import com.kuartet.mbois.ui.screens.InteractiveScreen
 import com.kuartet.mbois.ui.screens.OnBoardingScreen
 import com.kuartet.mbois.ui.screens.ProfileScreen
+import com.kuartet.mbois.ui.screens.ScanScreen
 import com.kuartet.mbois.ui.theme.MBOISTheme
 import com.kuartet.mbois.viewmodel.HomeViewModel
 
@@ -74,6 +75,9 @@ class MainActivity : ComponentActivity() {
                             },
                             onNavigateToDetail = { cardId ->
                                 navController.navigate(Screen.Detail.createRoute(cardId))
+                            },
+                            onNavigateToScan = {
+                                navController.navigate(Screen.Scan.route)
                             }
                         )
                     }
@@ -119,6 +123,17 @@ class MainActivity : ComponentActivity() {
                             viewModel = homeViewModel,
                             onBack = {
                                 navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable(Screen.Scan.route) {
+                        ScanScreen(
+                            onBack = {
+                                navController.popBackStack()
+                            },
+                            onCardDetected = { cardId ->
+                                navController.navigate(Screen.Detail.createRoute(cardId))
                             }
                         )
                     }

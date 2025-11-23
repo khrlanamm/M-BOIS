@@ -478,7 +478,6 @@ fun ChatBubble(message: ChatMessage) {
                 .padding(12.dp)
         ) {
             SelectionContainer {
-                // Menggunakan MarkdownText agar bold, italic, dan list terender dengan benar
                 MarkdownText(
                     markdown = message.text,
                     style = TextStyle(
