@@ -1,13 +1,9 @@
-package com.kuartet.mbois
+package com.kuartet.mbois.ui.screens
 
 import android.content.Intent
 import android.net.Uri
-import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,12 +25,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -46,52 +46,61 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
-import androidx.lifecycle.lifecycleScope
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.kuartet.mbois.R
 import com.kuartet.mbois.ui.theme.CreamBackground
-import com.kuartet.mbois.ui.theme.MBOISTheme
 import com.kuartet.mbois.ui.theme.OrangePrimary
 import com.kuartet.mbois.ui.theme.PoppinsFontFamily
 import kotlinx.coroutines.launch
 import java.security.SecureRandom
 
-class AuthActivity : ComponentActivity() {
+@Composable
+fun AuthScreen(
+    onLoginSuccess: () -> Unit
+) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    var isLoading by remember { mutableStateOf(false) }
+    val auth = FirebaseAuth.getInstance()
+    val credentialManager = CredentialManager.create(context)
 
-    private lateinit var auth: FirebaseAuth
-    private lateinit var credentialManager: CredentialManager
-    private var isLoading by mutableStateOf(false)
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-
-        auth = FirebaseAuth.getInstance()
-        credentialManager = CredentialManager.create(this)
-
-        setContent {
-            MBOISTheme {
-                AuthScreen(
-                    isLoading = isLoading,
-                    onGoogleSignInClick = { signInWithGoogle() },
-                    onTermsClick = {
-                        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://m-bois.web.app/"))
-                        startActivity(browserIntent)
-                    }
-                )
-            }
-        }
+    fun handleFailure(message: String) {
+        isLoading = false
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        Log.e("AuthScreen", message)
     }
 
-    private fun signInWithGoogle() {
+    fun firebaseAuthWithGoogle(idToken: String) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(context, "Berhasil masuk", Toast.LENGTH_SHORT).show()
+                    onLoginSuccess()
+                } else {
+                    handleFailure("Autentikasi Firebase gagal.")
+                }
+            }
+    }
+
+    fun generateNonce(length: Int = 16): String {
+        val random = SecureRandom()
+        val bytes = ByteArray(length)
+        random.nextBytes(bytes)
+        return bytes.joinToString("") { "%02x".format(it) }
+    }
+
+    fun signInWithGoogle() {
         isLoading = true
         val nonce = generateNonce()
+        val clientId = context.getString(R.string.default_web_client_id)
 
         val googleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false)
-            .setServerClientId(getString(R.string.default_web_client_id))
+            .setServerClientId(clientId)
             .setAutoSelectEnabled(true)
             .setNonce(nonce)
             .build()
@@ -100,9 +109,9 @@ class AuthActivity : ComponentActivity() {
             .addCredentialOption(googleIdOption)
             .build()
 
-        lifecycleScope.launch {
+        coroutineScope.launch {
             try {
-                val result = credentialManager.getCredential(this@AuthActivity, request)
+                val result = credentialManager.getCredential(context, request)
                 val credential = result.credential
                 if (credential is CustomCredential &&
                     credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
@@ -114,47 +123,13 @@ class AuthActivity : ComponentActivity() {
                     handleFailure("Tipe kredensial tidak dikenali.")
                 }
             } catch (e: GetCredentialException) {
-                handleFailure("Login dibatalkan atau gagal. ${e.localizedMessage}")
+                handleFailure("Login dibatalkan atau gagal.")
             } catch (e: Exception) {
                 handleFailure("Terjadi kesalahan: ${e.localizedMessage}")
             }
         }
     }
 
-    private fun firebaseAuthWithGoogle(idToken: String) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        auth.signInWithCredential(credential)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    Toast.makeText(this, "Berhasil masuk", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, MainActivity::class.java))
-                    finish()
-                } else {
-                    handleFailure("Autentikasi Firebase gagal.")
-                }
-            }
-    }
-
-    private fun handleFailure(message: String) {
-        isLoading = false
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-        Log.e("AuthActivity", message)
-    }
-
-    private fun generateNonce(length: Int = 16): String {
-        val random = SecureRandom()
-        val bytes = ByteArray(length)
-        random.nextBytes(bytes)
-        return bytes.joinToString("") { "%02x".format(it) }
-    }
-}
-
-@Composable
-fun AuthScreen(
-    isLoading: Boolean,
-    onGoogleSignInClick: () -> Unit,
-    onTermsClick: () -> Unit
-) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -190,7 +165,7 @@ fun AuthScreen(
                 )
             } else {
                 Surface(
-                    onClick = onGoogleSignInClick,
+                    onClick = { signInWithGoogle() },
                     shape = RoundedCornerShape(50),
                     color = Color.White,
                     shadowElevation = 4.dp,
@@ -236,7 +211,10 @@ fun AuthScreen(
                 fontSize = 12.sp,
                 color = Color.Gray,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.clickable { onTermsClick() }
+                modifier = Modifier.clickable {
+                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://m-bois.web.app/"))
+                    context.startActivity(browserIntent)
+                }
             )
         }
     }

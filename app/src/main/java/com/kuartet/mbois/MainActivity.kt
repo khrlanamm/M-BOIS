@@ -1,174 +1,144 @@
 package com.kuartet.mbois
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.google.firebase.auth.FirebaseAuth
-import com.kuartet.mbois.ui.theme.BrownDark
-import com.kuartet.mbois.ui.theme.CreamBackground
+import com.kuartet.mbois.navigation.Screen
+import com.kuartet.mbois.ui.screens.AuthScreen
+import com.kuartet.mbois.ui.screens.DetailScreen
+import com.kuartet.mbois.ui.screens.HomeScreen
+import com.kuartet.mbois.ui.screens.InteractiveScreen
+import com.kuartet.mbois.ui.screens.OnBoardingScreen
+import com.kuartet.mbois.ui.screens.ProfileScreen
+import com.kuartet.mbois.ui.screens.ScanScreen
 import com.kuartet.mbois.ui.theme.MBOISTheme
-import com.kuartet.mbois.ui.theme.OrangePrimary
-import com.kuartet.mbois.ui.theme.PoppinsFontFamily
-import com.kuartet.mbois.ui.theme.White
+import com.kuartet.mbois.viewmodel.HomeViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val user = FirebaseAuth.getInstance().currentUser
-        if (user == null) {
-            startActivity(Intent(this, OnBoardingActivity::class.java))
-            finish()
-            return
-        }
-
         enableEdgeToEdge()
         setContent {
             MBOISTheme {
-                MainScreen()
-            }
-        }
-    }
-}
+                val navController = rememberNavController()
+                val auth = FirebaseAuth.getInstance()
 
-@Composable
-fun MainScreen() {
-    val context = LocalContext.current
-    val user = FirebaseAuth.getInstance().currentUser
-    var lastBackPressTime by remember { mutableLongStateOf(0L) }
+                val homeViewModel: HomeViewModel = viewModel()
 
-    BackHandler {
-        val currentTime = System.currentTimeMillis()
-        if (currentTime - lastBackPressTime < 2000) {
-            (context as? Activity)?.finish()
-        } else {
-            lastBackPressTime = currentTime
-            Toast.makeText(context, "Tekan sekali lagi untuk keluar", Toast.LENGTH_SHORT).show()
-        }
-    }
+                var startDestination by remember {
+                    mutableStateOf(
+                        if (auth.currentUser != null) Screen.Home.route else Screen.OnBoarding.route
+                    )
+                }
 
-    Scaffold(
-        containerColor = CreamBackground,
-        topBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(White)
-                    .statusBarsPadding()
-                    .height(56.dp)
-                    .padding(horizontal = 24.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.mbois),
-                    contentDescription = "Logo MBOIS",
-                    modifier = Modifier
-                        .size(48.dp)
-                        .align(Alignment.CenterStart),
-                    contentScale = ContentScale.Fit
-                )
-
-                Text(
-                    text = "Galeri Budaya",
-                    fontFamily = PoppinsFontFamily,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    color = BrownDark,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .align(Alignment.CenterEnd)
-                        .clip(CircleShape)
-                        .background(Color.Transparent)
-                        .clickable {
-                            context.startActivity(Intent(context, ProfileActivity::class.java))
-                        },
-                    contentAlignment = Alignment.Center
+                NavHost(
+                    navController = navController,
+                    startDestination = startDestination
                 ) {
-                    if (user?.photoUrl != null) {
-                        AsyncImage(
-                            model = user.photoUrl,
-                            contentDescription = "Foto Profil",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clip(CircleShape)
-                                .border(1.dp, BrownDark, CircleShape),
-                            contentScale = ContentScale.Crop
+                    composable(Screen.OnBoarding.route) {
+                        OnBoardingScreen(
+                            onComplete = {
+                                navController.navigate(Screen.Auth.route) {
+                                    popUpTo(Screen.OnBoarding.route) { inclusive = true }
+                                }
+                            }
                         )
+                    }
 
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Profil Default",
-                            tint = BrownDark,
-                            modifier = Modifier.size(28.dp)
+                    composable(Screen.Auth.route) {
+                        AuthScreen(
+                            onLoginSuccess = {
+                                navController.navigate(Screen.Home.route) {
+                                    popUpTo(Screen.Auth.route) { inclusive = true }
+                                }
+                            }
+                        )
+                    }
+
+                    composable(Screen.Home.route) {
+                        HomeScreen(
+                            viewModel = homeViewModel,
+                            onNavigateToProfile = {
+                                navController.navigate(Screen.Profile.route)
+                            },
+                            onNavigateToDetail = { cardId ->
+                                navController.navigate(Screen.Detail.createRoute(cardId))
+                            },
+                            onNavigateToScan = {
+                                navController.navigate(Screen.Scan.route)
+                            }
+                        )
+                    }
+
+                    composable(Screen.Profile.route) {
+                        ProfileScreen(
+                            onBack = {
+                                navController.popBackStack()
+                            },
+                            onLogout = {
+                                auth.signOut()
+                                navController.navigate(Screen.OnBoarding.route) {
+                                    popUpTo(0)
+                                }
+                            }
+                        )
+                    }
+
+                    composable(
+                        route = Screen.Detail.route,
+                        arguments = listOf(navArgument("cardId") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val cardId = backStackEntry.arguments?.getString("cardId") ?: ""
+                        DetailScreen(
+                            cardId = cardId,
+                            viewModel = homeViewModel,
+                            onBack = {
+                                navController.popBackStack()
+                            },
+                            onNavigateToInteractive = { id ->
+                                navController.navigate(Screen.Interactive.createRoute(id))
+                            }
+                        )
+                    }
+
+                    composable(
+                        route = Screen.Interactive.route,
+                        arguments = listOf(navArgument("cardId") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val cardId = backStackEntry.arguments?.getString("cardId") ?: ""
+                        InteractiveScreen(
+                            cardId = cardId,
+                            viewModel = homeViewModel,
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable(Screen.Scan.route) {
+                        ScanScreen(
+                            onBack = {
+                                navController.popBackStack()
+                            },
+                            onCardDetected = { cardId ->
+                                navController.navigate(Screen.Detail.createRoute(cardId))
+                            }
                         )
                     }
                 }
             }
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { },
-                containerColor = OrangePrimary,
-                contentColor = White,
-                shape = CircleShape,
-                modifier = Modifier.size(64.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.QrCodeScanner,
-                    contentDescription = "Scan QR",
-                    modifier = Modifier.size(32.dp)
-                )
-            }
         }
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        )
     }
 }
