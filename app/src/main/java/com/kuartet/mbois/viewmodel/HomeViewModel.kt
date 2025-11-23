@@ -45,4 +45,13 @@ class HomeViewModel : ViewModel() {
             }
         }
     }
+
+    fun getCardById(id: String): MboisCard? {
+        val currentState = _uiState.value
+        return if (currentState is HomeUiState.Success) {
+            currentState.groupedCards.values.flatten().find { it.id == id }
+        } else {
+            null
+        }
+    }
 }

@@ -8,16 +8,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.google.firebase.auth.FirebaseAuth
 import com.kuartet.mbois.navigation.Screen
 import com.kuartet.mbois.ui.screens.AuthScreen
+import com.kuartet.mbois.ui.screens.DetailScreen
 import com.kuartet.mbois.ui.screens.HomeScreen
 import com.kuartet.mbois.ui.screens.OnBoardingScreen
 import com.kuartet.mbois.ui.screens.ProfileScreen
 import com.kuartet.mbois.ui.theme.MBOISTheme
+import com.kuartet.mbois.viewmodel.HomeViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,6 +32,9 @@ class MainActivity : ComponentActivity() {
             MBOISTheme {
                 val navController = rememberNavController()
                 val auth = FirebaseAuth.getInstance()
+
+                // Hoist ViewModel here to share data between Home and Detail
+                val homeViewModel: HomeViewModel = viewModel()
 
                 var startDestination by remember {
                     mutableStateOf(
@@ -60,8 +68,12 @@ class MainActivity : ComponentActivity() {
 
                     composable(Screen.Home.route) {
                         HomeScreen(
+                            viewModel = homeViewModel,
                             onNavigateToProfile = {
                                 navController.navigate(Screen.Profile.route)
+                            },
+                            onNavigateToDetail = { cardId ->
+                                navController.navigate(Screen.Detail.createRoute(cardId))
                             }
                         )
                     }
@@ -76,6 +88,20 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate(Screen.OnBoarding.route) {
                                     popUpTo(0)
                                 }
+                            }
+                        )
+                    }
+
+                    composable(
+                        route = Screen.Detail.route,
+                        arguments = listOf(navArgument("cardId") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val cardId = backStackEntry.arguments?.getString("cardId") ?: ""
+                        DetailScreen(
+                            cardId = cardId,
+                            viewModel = homeViewModel,
+                            onBack = {
+                                navController.popBackStack()
                             }
                         )
                     }

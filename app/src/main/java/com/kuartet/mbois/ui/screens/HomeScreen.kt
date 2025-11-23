@@ -47,7 +47,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.google.firebase.auth.FirebaseAuth
 import com.kuartet.mbois.R
@@ -63,7 +62,8 @@ import com.kuartet.mbois.viewmodel.HomeViewModel
 @Composable
 fun HomeScreen(
     onNavigateToProfile: () -> Unit,
-    viewModel: HomeViewModel = viewModel()
+    onNavigateToDetail: (String) -> Unit,
+    viewModel: HomeViewModel
 ) {
     val context = LocalContext.current
     val user = FirebaseAuth.getInstance().currentUser
@@ -218,7 +218,7 @@ fun HomeScreen(
                                     Box(modifier = Modifier.weight(1f)) {
                                         MboisCardItem(
                                             card = card,
-                                            onClick = { /* Handle Click later */ }
+                                            onClick = { onNavigateToDetail(card.id) }
                                         )
                                     }
                                 }
