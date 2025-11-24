@@ -25,17 +25,23 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -57,6 +63,7 @@ import com.kuartet.mbois.ui.theme.OrangePrimary
 import com.kuartet.mbois.ui.theme.PoppinsFontFamily
 import com.kuartet.mbois.ui.theme.White
 import com.kuartet.mbois.viewmodel.HomeViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun DetailScreen(
@@ -71,6 +78,10 @@ fun DetailScreen(
 
     var isPlaying by remember { mutableStateOf(false) }
     var isAudioLoading by remember { mutableStateOf(false) }
+    var currentPosition by remember { mutableFloatStateOf(0f) }
+    var totalDuration by remember { mutableFloatStateOf(0f) }
+    var isDragging by remember { mutableStateOf(false) }
+
     val mediaPlayer = remember { MediaPlayer() }
 
     DisposableEffect(Unit) {
@@ -88,6 +99,7 @@ fun DetailScreen(
 
     LaunchedEffect(card?.audioUrl) {
         if (!card?.audioUrl.isNullOrEmpty()) {
+            isAudioLoading = true
             try {
                 mediaPlayer.setAudioAttributes(
                     AudioAttributes.Builder()
@@ -97,15 +109,27 @@ fun DetailScreen(
                 )
                 mediaPlayer.setDataSource(card!!.audioUrl)
                 mediaPlayer.prepareAsync()
-                mediaPlayer.setOnPreparedListener {
-
+                mediaPlayer.setOnPreparedListener { mp ->
+                    isAudioLoading = false
+                    totalDuration = mp.duration.toFloat()
                 }
                 mediaPlayer.setOnCompletionListener {
                     isPlaying = false
+                    currentPosition = 0f
                 }
             } catch (e: Exception) {
+                isAudioLoading = false
                 e.printStackTrace()
             }
+        }
+    }
+
+    LaunchedEffect(isPlaying) {
+        while (isPlaying) {
+            if (!isDragging) {
+                currentPosition = mediaPlayer.currentPosition.toFloat()
+            }
+            delay(500)
         }
     }
 
@@ -127,6 +151,13 @@ fun DetailScreen(
         } catch (e: Exception) {
             Toast.makeText(context, "Gagal memutar audio", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    fun formatTime(millis: Float): String {
+        val totalSeconds = (millis / 1000).toLong()
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+        return String.format("%02d:%02d", minutes, seconds)
     }
 
     Scaffold(
@@ -227,52 +258,124 @@ fun DetailScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFFFFF3E0), RoundedCornerShape(16.dp))
+                        .padding(16.dp)
                 ) {
                     Text(
-                        text = card.name,
+                        text = "Audio Penjelasan",
                         fontFamily = PoppinsFontFamily,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 22.sp,
-                        color = BrownDark,
-                        modifier = Modifier.weight(1f)
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp,
+                        color = BrownDark
                     )
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                    IconButton(
-                        onClick = { toggleAudio() },
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = OrangePrimary,
-                            contentColor = White
-                        ),
-                        modifier = Modifier
-                            .size(48.dp)
-                            .shadow(4.dp, CircleShape)
+                    Slider(
+                        value = currentPosition,
+                        onValueChange = {
+                            isDragging = true
+                            currentPosition = it
+                        },
+                        onValueChangeFinished = {
+                            mediaPlayer.seekTo(currentPosition.toInt())
+                            isDragging = false
+                        },
+                        valueRange = 0f..totalDuration.coerceAtLeast(1f),
+                        colors = SliderDefaults.colors(
+                            thumbColor = OrangePrimary,
+                            activeTrackColor = OrangePrimary,
+                            inactiveTrackColor = Color.Gray.copy(alpha = 0.3f)
+                        )
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        if (isAudioLoading) {
-                            CircularProgressIndicator(
-                                color = White,
-                                modifier = Modifier.size(24.dp),
-                                strokeWidth = 2.dp
-                            )
-                        } else {
+                        Text(
+                            text = formatTime(currentPosition),
+                            fontFamily = PoppinsFontFamily,
+                            fontSize = 12.sp,
+                            color = BrownDark
+                        )
+                        Text(
+                            text = formatTime(totalDuration),
+                            fontFamily = PoppinsFontFamily,
+                            fontSize = 12.sp,
+                            color = BrownDark
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(
+                            onClick = {
+                                mediaPlayer.seekTo(0)
+                                currentPosition = 0f
+                            }
+                        ) {
                             Icon(
-                                imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                                contentDescription = "Play Audio"
+                                imageVector = Icons.Default.Replay,
+                                contentDescription = "Replay",
+                                tint = BrownDark
                             )
                         }
+
+                        Spacer(modifier = Modifier.width(16.dp))
+
+                        IconButton(
+                            onClick = { toggleAudio() },
+                            modifier = Modifier
+                                .size(56.dp)
+                                .shadow(4.dp, CircleShape)
+                                .background(OrangePrimary, CircleShape)
+                        ) {
+                            if (isAudioLoading) {
+                                CircularProgressIndicator(
+                                    color = White,
+                                    modifier = Modifier.size(24.dp),
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                                    contentDescription = "Play/Pause",
+                                    tint = White,
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.width(16.dp))
+
+                        Spacer(modifier = Modifier.size(48.dp))
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = card.name,
+                    fontFamily = PoppinsFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 22.sp,
+                    color = BrownDark
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Box(
                     modifier = Modifier
-                        .background(Color(0xFFFFF3E0), RoundedCornerShape(50))
+                        .background(OrangePrimary.copy(alpha = 0.1f), RoundedCornerShape(50))
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
                     Text(
@@ -280,7 +383,7 @@ fun DetailScreen(
                         fontFamily = PoppinsFontFamily,
                         fontWeight = FontWeight.Medium,
                         fontSize = 14.sp,
-                        color = BrownDark
+                        color = OrangePrimary
                     )
                 }
 

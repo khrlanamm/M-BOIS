@@ -10,6 +10,11 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,7 +40,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -75,6 +82,7 @@ data class ChatMessage(
     val isUser: Boolean
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun InteractiveScreen(
@@ -93,6 +101,8 @@ fun InteractiveScreen(
     val isAiLoading by viewModel.isAiLoading.collectAsState()
     var inputText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
+
+    var webViewRef by remember { mutableStateOf<WebView?>(null) }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -238,8 +248,8 @@ fun InteractiveScreen(
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
                         .weight(1f)
+                        .fillMaxWidth()
                         .background(Color(0xFFF5F5F5))
                 ) {
                     if (card.arUrl.isNotEmpty()) {
@@ -281,9 +291,12 @@ fun InteractiveScreen(
                                             return handleUrl(url)
                                         }
                                     }
-
+                                    webViewRef = this
                                     loadUrl(card.arUrl)
                                 }
+                            },
+                            update = {
+                                webViewRef = it
                             },
                             modifier = Modifier.fillMaxSize()
                         )
@@ -311,6 +324,26 @@ fun InteractiveScreen(
                         )
                     }
 
+                    // Reload Button (Left)
+                    IconButton(
+                        onClick = { webViewRef?.reload() },
+                        colors = IconButtonDefaults.iconButtonColors(
+                            containerColor = OrangePrimary,
+                            contentColor = White
+                        ),
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(16.dp)
+                            .size(48.dp)
+                            .shadow(4.dp, CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Reload Web View"
+                        )
+                    }
+
+                    // Audio Button (Right)
                     IconButton(
                         onClick = { toggleAudio() },
                         colors = IconButtonDefaults.iconButtonColors(
@@ -372,6 +405,17 @@ fun InteractiveScreen(
                         }
                         if (isAiLoading) {
                             item {
+                                val infiniteTransition = rememberInfiniteTransition(label = "loading_transition")
+                                val alpha by infiniteTransition.animateFloat(
+                                    initialValue = 0.2f,
+                                    targetValue = 1f,
+                                    animationSpec = infiniteRepeatable(
+                                        animation = tween(800),
+                                        repeatMode = RepeatMode.Reverse
+                                    ),
+                                    label = "loading_alpha"
+                                )
+
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -382,7 +426,7 @@ fun InteractiveScreen(
                                         text = "Menyiapkan Jawaban...",
                                         fontFamily = PoppinsFontFamily,
                                         fontSize = 12.sp,
-                                        color = Color.Gray,
+                                        color = Color.Gray.copy(alpha = alpha),
                                         fontStyle = FontStyle.Italic
                                     )
                                 }
