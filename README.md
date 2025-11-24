@@ -125,7 +125,7 @@ Aplikasi memerlukan permission berikut:
 
 ## 📝 Dependencies Utama
 
-```kotlin
+```text
 // Jetpack Compose
 androidx.compose.ui
 androidx.compose.material3

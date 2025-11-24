@@ -35,9 +35,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshState
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -86,6 +90,7 @@ fun HomeScreen(
 
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    val pullToRefreshState: PullToRefreshState = rememberPullToRefreshState()
 
     LaunchedEffect(Unit) {
         viewModel.fetchCards()
@@ -188,7 +193,30 @@ fun HomeScreen(
             },
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(innerPadding),
+            state = pullToRefreshState,
+            indicator = {
+                PullToRefreshDefaults.IndicatorBox(
+                    state = pullToRefreshState,
+                    isRefreshing = isRefreshing,
+                    modifier = Modifier.align(Alignment.TopCenter),
+                    elevation = 0.dp
+                ) {
+                    if (isRefreshing) {
+                        CircularProgressIndicator(
+                            color = OrangePrimary,
+                            strokeWidth = 3.dp
+                        )
+                    } else {
+                        CircularProgressIndicator(
+                            progress = { pullToRefreshState.distanceFraction.coerceIn(0f, 1f) },
+                            color = OrangePrimary,
+                            trackColor = ProgressIndicatorDefaults.circularIndeterminateTrackColor,
+                            strokeWidth = 3.dp
+                        )
+                    }
+                }
+            }
         ) {
             when (val state = uiState) {
                 is HomeUiState.Loading -> {
@@ -204,7 +232,7 @@ fun HomeScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .verticalScroll(rememberScrollState()), // Agar bisa dipull to refresh
+                            .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
