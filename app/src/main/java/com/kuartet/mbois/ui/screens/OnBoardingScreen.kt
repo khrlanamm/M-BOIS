@@ -121,7 +121,8 @@ fun OnBoardingScreen(onComplete: () -> Unit) {
                         targetValue = if (pagerState.currentPage == iteration) 24.dp else 8.dp,
                         label = "dotWidth"
                     )
-                    val color = if (pagerState.currentPage == iteration) OrangePrimary else Color.LightGray
+                    val color =
+                        if (pagerState.currentPage == iteration) OrangePrimary else Color.LightGray
 
                     Box(
                         modifier = Modifier

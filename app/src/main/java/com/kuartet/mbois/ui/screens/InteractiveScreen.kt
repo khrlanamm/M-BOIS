@@ -41,7 +41,6 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -405,7 +404,8 @@ fun InteractiveScreen(
                         }
                         if (isAiLoading) {
                             item {
-                                val infiniteTransition = rememberInfiniteTransition(label = "loading_transition")
+                                val infiniteTransition =
+                                    rememberInfiniteTransition(label = "loading_transition")
                                 val alpha by infiniteTransition.animateFloat(
                                     initialValue = 0.2f,
                                     targetValue = 1f,

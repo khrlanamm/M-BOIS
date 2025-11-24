@@ -34,7 +34,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -116,7 +115,8 @@ fun AuthScreen(
                 if (credential is CustomCredential &&
                     credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
                 ) {
-                    val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                    val googleIdTokenCredential =
+                        GoogleIdTokenCredential.createFrom(credential.data)
                     val idToken = googleIdTokenCredential.idToken
                     firebaseAuthWithGoogle(idToken)
                 } else {
@@ -212,7 +212,8 @@ fun AuthScreen(
                 color = Color.Gray,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.clickable {
-                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://m-bois.web.app/"))
+                    val browserIntent =
+                        Intent(Intent.ACTION_VIEW, Uri.parse("https://m-bois.web.app/"))
                     context.startActivity(browserIntent)
                 }
             )

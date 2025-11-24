@@ -6,7 +6,6 @@ val CreamBackground = Color(0xFFFFFBD6)
 val OrangePrimary = Color(0xFFFDAA0C)
 val BrownDark = Color(0xFF78280C)
 val White = Color(0xFFFFFFFF)
-val GrayText = Color(0xFF757575)
 
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)

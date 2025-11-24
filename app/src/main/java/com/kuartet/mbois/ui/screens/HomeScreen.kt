@@ -199,6 +199,7 @@ fun HomeScreen(
                         CircularProgressIndicator(color = OrangePrimary)
                     }
                 }
+
                 is HomeUiState.Error -> {
                     Column(
                         modifier = Modifier
@@ -236,6 +237,7 @@ fun HomeScreen(
                         }
                     }
                 }
+
                 is HomeUiState.Success -> {
                     LazyColumn(
                         contentPadding = PaddingValues(
