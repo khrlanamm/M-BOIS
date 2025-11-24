@@ -14,8 +14,18 @@
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+-keepattributes SourceFile,LineNumberTable
 
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# --- M-BOIS Specific Rules ---
+
+# Firebase Firestore Models
+# Keep the data model and its members to ensure Firestore's toObjects() works correctly
+-keep class com.kuartet.mbois.model.** { *; }
+
+# Kotlin Metadata
+# Keep Kotlin metadata to ensure reflection works if needed (though direct field access is preferred)
+-keep class kotlin.Metadata { *; }
