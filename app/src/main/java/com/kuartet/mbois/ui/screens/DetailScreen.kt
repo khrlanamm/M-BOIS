@@ -4,6 +4,7 @@ import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -193,9 +194,7 @@ fun DetailScreen(
             if (!card?.arUrl.isNullOrEmpty()) {
                 FloatingActionButton(
                     onClick = {
-                        if (card != null) {
-                            onNavigateToInteractive(card.id)
-                        }
+                        onNavigateToInteractive(card.id)
                     },
                     containerColor = OrangePrimary,
                     contentColor = White,
@@ -261,7 +260,9 @@ fun DetailScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFFFFF3E0), RoundedCornerShape(16.dp))
+                            .shadow(4.dp, RoundedCornerShape(16.dp))
+                            .background(White, RoundedCornerShape(16.dp))
+                            .border(1.dp, OrangePrimary.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
                             .padding(16.dp)
                     ) {
                         Text(
@@ -288,7 +289,7 @@ fun DetailScreen(
                             colors = SliderDefaults.colors(
                                 thumbColor = OrangePrimary,
                                 activeTrackColor = OrangePrimary,
-                                inactiveTrackColor = Color.Gray.copy(alpha = 0.3f)
+                                inactiveTrackColor = BrownDark.copy(alpha = 0.1f)
                             )
                         )
 

@@ -64,6 +64,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.google.firebase.auth.FirebaseAuth
 import com.kuartet.mbois.R
+import com.kuartet.mbois.repository.ActivityRepository
 import com.kuartet.mbois.ui.components.MboisCardItem
 import com.kuartet.mbois.ui.theme.BrownDark
 import com.kuartet.mbois.ui.theme.CreamBackground
@@ -87,6 +88,7 @@ fun HomeScreen(
     val user = FirebaseAuth.getInstance().currentUser
     var lastBackPressTime by remember { mutableLongStateOf(0L) }
     val uiState by viewModel.uiState.collectAsState()
+    val activityRepository = remember { ActivityRepository() }
 
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -94,6 +96,9 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         viewModel.fetchCards()
+        user?.email?.let { email ->
+            activityRepository.updateUserActivity(email)
+        }
     }
 
     BackHandler {
