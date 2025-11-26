@@ -134,7 +134,8 @@ class MainActivity : ComponentActivity() {
                             },
                             onCardDetected = { cardId ->
                                 navController.navigate(Screen.Detail.createRoute(cardId))
-                            }
+                            },
+                            viewModel = homeViewModel
                         )
                     }
                 }

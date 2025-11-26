@@ -190,22 +190,24 @@ fun DetailScreen(
             }
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    if (card != null) {
-                        onNavigateToInteractive(card.id)
-                    }
-                },
-                containerColor = OrangePrimary,
-                contentColor = White,
-                shape = CircleShape,
-                modifier = Modifier.size(64.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.AutoAwesome,
-                    contentDescription = "AI Chat",
-                    modifier = Modifier.size(32.dp)
-                )
+            if (!card?.arUrl.isNullOrEmpty()) {
+                FloatingActionButton(
+                    onClick = {
+                        if (card != null) {
+                            onNavigateToInteractive(card.id)
+                        }
+                    },
+                    containerColor = OrangePrimary,
+                    contentColor = White,
+                    shape = CircleShape,
+                    modifier = Modifier.size(64.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AutoAwesome,
+                        contentDescription = "AI Chat",
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
             }
         }
     ) { innerPadding ->
@@ -255,110 +257,112 @@ fun DetailScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color(0xFFFFF3E0), RoundedCornerShape(16.dp))
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "Audio Penjelasan",
-                        fontFamily = PoppinsFontFamily,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 14.sp,
-                        color = BrownDark
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Slider(
-                        value = currentPosition,
-                        onValueChange = {
-                            isDragging = true
-                            currentPosition = it
-                        },
-                        onValueChangeFinished = {
-                            mediaPlayer.seekTo(currentPosition.toInt())
-                            isDragging = false
-                        },
-                        valueRange = 0f..totalDuration.coerceAtLeast(1f),
-                        colors = SliderDefaults.colors(
-                            thumbColor = OrangePrimary,
-                            activeTrackColor = OrangePrimary,
-                            inactiveTrackColor = Color.Gray.copy(alpha = 0.3f)
-                        )
-                    )
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                if (!card.audioUrl.isNullOrEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFFFFF3E0), RoundedCornerShape(16.dp))
+                            .padding(16.dp)
                     ) {
                         Text(
-                            text = formatTime(currentPosition),
+                            text = "Audio Penjelasan",
                             fontFamily = PoppinsFontFamily,
-                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp,
                             color = BrownDark
                         )
-                        Text(
-                            text = formatTime(totalDuration),
-                            fontFamily = PoppinsFontFamily,
-                            fontSize = 12.sp,
-                            color = BrownDark
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Slider(
+                            value = currentPosition,
+                            onValueChange = {
+                                isDragging = true
+                                currentPosition = it
+                            },
+                            onValueChangeFinished = {
+                                mediaPlayer.seekTo(currentPosition.toInt())
+                                isDragging = false
+                            },
+                            valueRange = 0f..totalDuration.coerceAtLeast(1f),
+                            colors = SliderDefaults.colors(
+                                thumbColor = OrangePrimary,
+                                activeTrackColor = OrangePrimary,
+                                inactiveTrackColor = Color.Gray.copy(alpha = 0.3f)
+                            )
                         )
-                    }
 
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(
-                            onClick = {
-                                mediaPlayer.seekTo(0)
-                                currentPosition = 0f
-                            }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Replay,
-                                contentDescription = "Replay",
-                                tint = BrownDark
+                            Text(
+                                text = formatTime(currentPosition),
+                                fontFamily = PoppinsFontFamily,
+                                fontSize = 12.sp,
+                                color = BrownDark
+                            )
+                            Text(
+                                text = formatTime(totalDuration),
+                                fontFamily = PoppinsFontFamily,
+                                fontSize = 12.sp,
+                                color = BrownDark
                             )
                         }
 
-                        Spacer(modifier = Modifier.width(16.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                        IconButton(
-                            onClick = { toggleAudio() },
-                            modifier = Modifier
-                                .size(56.dp)
-                                .shadow(4.dp, CircleShape)
-                                .background(OrangePrimary, CircleShape)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            if (isAudioLoading) {
-                                CircularProgressIndicator(
-                                    color = White,
-                                    modifier = Modifier.size(24.dp),
-                                    strokeWidth = 2.dp
-                                )
-                            } else {
+                            IconButton(
+                                onClick = {
+                                    mediaPlayer.seekTo(0)
+                                    currentPosition = 0f
+                                }
+                            ) {
                                 Icon(
-                                    imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                                    contentDescription = "Play/Pause",
-                                    tint = White,
-                                    modifier = Modifier.size(32.dp)
+                                    imageVector = Icons.Default.Replay,
+                                    contentDescription = "Replay",
+                                    tint = BrownDark
                                 )
                             }
+
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            IconButton(
+                                onClick = { toggleAudio() },
+                                modifier = Modifier
+                                    .size(56.dp)
+                                    .shadow(4.dp, CircleShape)
+                                    .background(OrangePrimary, CircleShape)
+                            ) {
+                                if (isAudioLoading) {
+                                    CircularProgressIndicator(
+                                        color = White,
+                                        modifier = Modifier.size(24.dp),
+                                        strokeWidth = 2.dp
+                                    )
+                                } else {
+                                    Icon(
+                                        imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                                        contentDescription = "Play/Pause",
+                                        tint = White,
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            Spacer(modifier = Modifier.size(48.dp))
                         }
-
-                        Spacer(modifier = Modifier.width(16.dp))
-
-                        Spacer(modifier = Modifier.size(48.dp))
                     }
-                }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
 
                 Text(
                     text = card.name,

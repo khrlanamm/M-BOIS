@@ -30,7 +30,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -43,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -55,9 +56,12 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import com.kuartet.mbois.ui.theme.BrownDark
+import com.kuartet.mbois.ui.theme.CreamBackground
 import com.kuartet.mbois.ui.theme.OrangePrimary
 import com.kuartet.mbois.ui.theme.PoppinsFontFamily
 import com.kuartet.mbois.ui.theme.White
+import com.kuartet.mbois.viewmodel.HomeViewModel
 import java.util.concurrent.Executors
 
 @OptIn(ExperimentalGetImage::class)
@@ -93,7 +97,8 @@ class QrCodeAnalyzer(private val onQrCodeScanned: (String) -> Unit) : ImageAnaly
 @Composable
 fun ScanScreen(
     onBack: () -> Unit,
-    onCardDetected: (String) -> Unit
+    onCardDetected: (String) -> Unit,
+    viewModel: HomeViewModel
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -148,7 +153,7 @@ fun ScanScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF050B18))
+            .background(CreamBackground)
     ) {
         Column(
             modifier = Modifier
@@ -165,15 +170,15 @@ fun ScanScreen(
                 Box(
                     modifier = Modifier
                         .size(40.dp)
-                        .background(Color(0x66000000), CircleShape)
+                        .background(White, CircleShape)
                         .clickable { onBack() }
                         .align(Alignment.CenterStart),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = null,
-                        tint = White
+                        tint = BrownDark
                     )
                 }
                 Text(
@@ -181,7 +186,7 @@ fun ScanScreen(
                     fontFamily = PoppinsFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp,
-                    color = White,
+                    color = BrownDark,
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
@@ -196,6 +201,7 @@ fun ScanScreen(
                     Box(
                         modifier = Modifier
                             .size(260.dp)
+                            .clip(RoundedCornerShape(16.dp))
                     ) {
                         AndroidView(
                             modifier = Modifier
@@ -242,7 +248,7 @@ fun ScanScreen(
                                 .border(
                                     width = 4.dp,
                                     color = OrangePrimary,
-                                    shape = RoundedCornerShape(4.dp)
+                                    shape = RoundedCornerShape(16.dp)
                                 )
                         )
                         Box(
@@ -258,7 +264,7 @@ fun ScanScreen(
                         text = "Izin kamera diperlukan untuk melakukan scan QR.",
                         fontFamily = PoppinsFontFamily,
                         fontSize = 14.sp,
-                        color = White
+                        color = BrownDark
                     )
                 }
             }
@@ -270,7 +276,7 @@ fun ScanScreen(
                     .fillMaxWidth()
                     .height(96.dp)
                     .background(
-                        color = Color(0xFF000000),
+                        color = OrangePrimary,
                         shape = RoundedCornerShape(24.dp)
                     ),
                 contentAlignment = Alignment.Center
@@ -305,24 +311,33 @@ fun ScanScreen(
                     Text(
                         text = "Objek tidak dikenali",
                         fontFamily = PoppinsFontFamily,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
+                        color = BrownDark
                     )
                 },
                 text = {
                     Text(
                         text = "Objek tidak dikenali, silahkan scan bagian belakang M-BOIS Kuartet.",
-                        fontFamily = PoppinsFontFamily
+                        fontFamily = PoppinsFontFamily,
+                        color = BrownDark
                     )
                 },
                 confirmButton = {
                     TextButton(onClick = { showUnrecognizedDialog = false }) {
-                        Text(text = "OK")
+                        Text(text = "OK", color = OrangePrimary)
                     }
-                }
+                },
+                containerColor = White,
+                textContentColor = BrownDark,
+                titleContentColor = BrownDark
             )
         }
 
         if (showConfirmDialog && pendingCardId != null) {
+            val card = viewModel.getCardById(pendingCardId!!)
+            val cardName = card?.name ?: "Kartu M-BOIS"
+            val categoryName = card?.categoryName?: "Kategori Kartu"
+
             AlertDialog(
                 onDismissRequest = {
                     showConfirmDialog = false
@@ -330,15 +345,17 @@ fun ScanScreen(
                 },
                 title = {
                     Text(
-                        text = "Kartu ditemukan",
+                        text = "$categoryName: $cardName",
                         fontFamily = PoppinsFontFamily,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
+                        color = BrownDark
                     )
                 },
                 text = {
                     Text(
-                        text = "Detail kartu ditemukan. Buka detail kartu?",
-                        fontFamily = PoppinsFontFamily
+                        text = "Kartu Ditemukan, lanjutkan ke halaman Pustaka Budaya $cardName",
+                        fontFamily = PoppinsFontFamily,
+                        color = BrownDark
                     )
                 },
                 confirmButton = {
@@ -352,7 +369,7 @@ fun ScanScreen(
                             }
                         }
                     ) {
-                        Text(text = "Lihat Detail")
+                        Text(text = "Lihat Detail", color = OrangePrimary)
                     }
                 },
                 dismissButton = {
@@ -362,9 +379,10 @@ fun ScanScreen(
                             pendingCardId = null
                         }
                     ) {
-                        Text(text = "Batal")
+                        Text(text = "Batal", color = BrownDark)
                     }
-                }
+                },
+                containerColor = White
             )
         }
     }

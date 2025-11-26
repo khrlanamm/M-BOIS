@@ -120,20 +120,22 @@ fun InteractiveScreen(
         if (card != null) {
             viewModel.initChatSession(card)
 
-            if (!card.audioUrl.isNullOrEmpty()) {
-                try {
-                    mediaPlayer.setAudioAttributes(
-                        AudioAttributes.Builder()
-                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                            .setUsage(AudioAttributes.USAGE_MEDIA)
-                            .build()
-                    )
-                    mediaPlayer.setDataSource(card.audioUrl)
-                    mediaPlayer.prepareAsync()
-                    mediaPlayer.setOnPreparedListener { }
-                    mediaPlayer.setOnCompletionListener { isPlaying = false }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+            card.audioUrl?.let { url ->
+                if (url.isNotEmpty()) {
+                    try {
+                        mediaPlayer.setAudioAttributes(
+                            AudioAttributes.Builder()
+                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                                .setUsage(AudioAttributes.USAGE_MEDIA)
+                                .build()
+                        )
+                        mediaPlayer.setDataSource(url)
+                        mediaPlayer.prepareAsync()
+                        mediaPlayer.setOnPreparedListener { }
+                        mediaPlayer.setOnCompletionListener { isPlaying = false }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
         }
@@ -251,7 +253,7 @@ fun InteractiveScreen(
                         .fillMaxWidth()
                         .background(Color(0xFFF5F5F5))
                 ) {
-                    if (card.arUrl.isNotEmpty()) {
+                    if (!card.arUrl.isNullOrEmpty()) {
                         AndroidView(
                             factory = { ctx ->
                                 WebView(ctx).apply {
@@ -291,7 +293,7 @@ fun InteractiveScreen(
                                         }
                                     }
                                     webViewRef = this
-                                    loadUrl(card.arUrl)
+                                    loadUrl(card.arUrl!!)
                                 }
                             },
                             update = {
@@ -323,42 +325,44 @@ fun InteractiveScreen(
                         )
                     }
 
-                    // Reload Button (Left)
-                    IconButton(
-                        onClick = { webViewRef?.reload() },
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = OrangePrimary,
-                            contentColor = White
-                        ),
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(16.dp)
-                            .size(48.dp)
-                            .shadow(4.dp, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Reload Web View"
-                        )
+                    if (!card.arUrl.isNullOrEmpty()) {
+                        IconButton(
+                            onClick = { webViewRef?.reload() },
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = OrangePrimary,
+                                contentColor = White
+                            ),
+                            modifier = Modifier
+                                .align(Alignment.BottomStart)
+                                .padding(16.dp)
+                                .size(48.dp)
+                                .shadow(4.dp, CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = "Reload Web View"
+                            )
+                        }
                     }
 
-                    // Audio Button (Right)
-                    IconButton(
-                        onClick = { toggleAudio() },
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = OrangePrimary,
-                            contentColor = White
-                        ),
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(16.dp)
-                            .size(48.dp)
-                            .shadow(4.dp, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                            contentDescription = "Play Audio"
-                        )
+                    if (!card.audioUrl.isNullOrEmpty()) {
+                        IconButton(
+                            onClick = { toggleAudio() },
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = OrangePrimary,
+                                contentColor = White
+                            ),
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(16.dp)
+                                .size(48.dp)
+                                .shadow(4.dp, CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                                contentDescription = "Play Audio"
+                            )
+                        }
                     }
                 }
 

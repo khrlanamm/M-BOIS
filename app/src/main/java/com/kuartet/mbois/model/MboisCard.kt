@@ -35,11 +35,11 @@ data class MboisCard(
 
     @get:PropertyName("audio_url")
     @set:PropertyName("audio_url")
-    var audioUrl: String = "",
+    var audioUrl: String? = null,
 
     @get:PropertyName("ar_url")
     @set:PropertyName("ar_url")
-    var arUrl: String = "",
+    var arUrl: String? = null,
 
     @get:PropertyName("created_at")
     @set:PropertyName("created_at")
