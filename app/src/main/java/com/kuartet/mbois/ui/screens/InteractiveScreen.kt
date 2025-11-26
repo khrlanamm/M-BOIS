@@ -226,7 +226,7 @@ fun InteractiveScreen(
                 }
 
                 Text(
-                    text = "${card?.name ?: ""} - Interaktif",
+                    text = "Eksplorasi ${card?.name ?: "Budaya"}",
                     fontFamily = PoppinsFontFamily,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,

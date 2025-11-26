@@ -41,7 +41,7 @@ class HomeViewModel : ViewModel() {
                 if (cards.isNotEmpty()) {
                     val sortedCards = cards.sortedWith(
                         compareBy(
-                            { it.categoryName },
+                            { it.categoryId },
                             { it.cardIndex }
                         )
                     )
