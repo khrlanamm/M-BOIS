@@ -45,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import com.kuartet.mbois.R
 import com.kuartet.mbois.ui.theme.BrownDark
 import com.kuartet.mbois.ui.theme.CreamBackground
@@ -57,7 +58,7 @@ import kotlinx.coroutines.launch
 data class OnBoardingPage(
     val title: String,
     val subtitle: String,
-    val images: List<Int>
+    val images: List<Any>
 )
 
 @Composable
@@ -66,17 +67,29 @@ fun OnBoardingScreen(onComplete: () -> Unit) {
         OnBoardingPage(
             title = "Selamat Datang!",
             subtitle = "Jelajahi Budaya Jawa Timur",
-            images = listOf(R.drawable.a1, R.drawable.a2, R.drawable.a3, R.drawable.a4)
+            images = listOf(
+                "https://res.cloudinary.com/du6ck27qw/image/upload/v1764154962/Suku_Jawa_heycqm.png",
+                "https://res.cloudinary.com/du6ck27qw/image/upload/v1764154965/Suku_Tengger_r4klz3.png",
+                "https://res.cloudinary.com/du6ck27qw/image/upload/v1764154961/Suku_Samin_blfocm.png"
+            )
         ),
         OnBoardingPage(
             title = "Interaksi 3D & AR",
             subtitle = "Lihat budaya dalam bentuk 3D dan Augmented Reality",
-            images = listOf(R.drawable.b1, R.drawable.b2, R.drawable.b3, R.drawable.b4)
+            images = listOf(
+                "https://res.cloudinary.com/du6ck27qw/image/upload/v1764156440/Peninggalan_Kerajaan_Kahuripan_lqxovm.png",
+                "https://res.cloudinary.com/du6ck27qw/image/upload/v1764156440/Peninggalan_Kerajaan_Majapahit_skpkpu.png",
+                "https://res.cloudinary.com/du6ck27qw/image/upload/v1764156439/Peninggalan_Kerajaan_Singasari_cdcgws.png"
+            )
         ),
         OnBoardingPage(
             title = "Tanya AI Budaya",
             subtitle = "Dapatkan informasi mendalam dengan AI Chatbot",
-            images = listOf(R.drawable.c1, R.drawable.c2, R.drawable.c3, R.drawable.c4)
+            images = listOf(
+                "https://res.cloudinary.com/du6ck27qw/image/upload/v1763856718/c2_qwgqdg.png",
+                "https://res.cloudinary.com/du6ck27qw/image/upload/v1763856718/c3_cjbvdv.png",
+                "https://res.cloudinary.com/du6ck27qw/image/upload/v1763856717/c4_tcvfrf.png"
+            )
         )
     )
 
@@ -173,7 +186,7 @@ fun OnBoardingPageContent(page: OnBoardingPage) {
     LaunchedEffect(page) {
         currentImageIndex = 0
         while (true) {
-            delay(2000)
+            delay(1500)
             currentImageIndex = (currentImageIndex + 1) % page.images.size
         }
     }
@@ -183,9 +196,7 @@ fun OnBoardingPageContent(page: OnBoardingPage) {
         modifier = Modifier.fillMaxWidth()
     ) {
         Box(
-            modifier = Modifier
-                .height(250.dp)
-                .fillMaxWidth(),
+            modifier = Modifier.size(300.dp),
             contentAlignment = Alignment.Center
         ) {
             AnimatedContent(
@@ -196,15 +207,22 @@ fun OnBoardingPageContent(page: OnBoardingPage) {
                 },
                 label = "CarouselAnimation"
             ) { index ->
-                Image(
-                    painter = painterResource(id = page.images[index]),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .height(220.dp)
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp),
-                    contentScale = ContentScale.Fit
-                )
+                val imageSource = page.images[index]
+                if (imageSource is String) {
+                    AsyncImage(
+                        model = imageSource,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
+                    )
+                } else if (imageSource is Int) {
+                    Image(
+                        painter = painterResource(id = imageSource),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
+                    )
+                }
             }
         }
 

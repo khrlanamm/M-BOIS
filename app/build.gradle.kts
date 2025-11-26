@@ -26,8 +26,8 @@ android {
         applicationId = "com.kuartet.mbois"
         minSdk = 24
         targetSdk = 36
-        versionCode = 4
-        versionName = "M-BOIS.v.1.5"
+        versionCode = 6
+        versionName = "M-BOIS.v.1.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

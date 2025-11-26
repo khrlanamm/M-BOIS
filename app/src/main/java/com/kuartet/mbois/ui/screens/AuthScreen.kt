@@ -200,7 +200,7 @@ fun AuthScreen(
             val annotatedString = buildAnnotatedString {
                 append("Dengan masuk, Anda menyetujui ")
                 withStyle(style = SpanStyle(color = OrangePrimary, fontWeight = FontWeight.Bold)) {
-                    append("Syarat & Ketentuan")
+                    append("Kebijakan Privasi")
                 }
                 append(" kami.")
             }
@@ -213,7 +213,7 @@ fun AuthScreen(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.clickable {
                     val browserIntent =
-                        Intent(Intent.ACTION_VIEW, Uri.parse("https://m-bois.web.app/"))
+                        Intent(Intent.ACTION_VIEW, Uri.parse("https://m-bois.web.app/privacy-policy"))
                     context.startActivity(browserIntent)
                 }
             )
