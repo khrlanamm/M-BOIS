@@ -26,8 +26,8 @@ android {
         applicationId = "com.kuartet.mbois"
         minSdk = 24
         targetSdk = 36
-        versionCode = 6
-        versionName = "M-BOIS.v.1.6"
+        versionCode = 7
+        versionName = "M-BOIS.v.1.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -76,6 +76,8 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.play.services.auth)
     implementation(libs.integrity)
+    implementation(libs.firebase.appcheck.playintegrity)
+    implementation(libs.firebase.appcheck.debug)
 
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
