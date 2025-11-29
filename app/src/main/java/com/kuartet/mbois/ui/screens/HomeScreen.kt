@@ -106,7 +106,6 @@ fun HomeScreen(
         if (currentTime - lastBackPressTime < 2000) {
             (context as? Activity)?.finish()
         } else {
-            lastBackPressTime = currentTime
             Toast.makeText(context, "Tekan sekali lagi untuk keluar", Toast.LENGTH_SHORT).show()
         }
     }
@@ -190,10 +189,8 @@ fun HomeScreen(
             isRefreshing = isRefreshing,
             onRefresh = {
                 scope.launch {
-                    isRefreshing = true
                     viewModel.fetchCards()
                     delay(1000)
-                    isRefreshing = false
                 }
             },
             modifier = Modifier

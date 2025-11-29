@@ -1,10 +1,11 @@
+@file:Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
+
 package com.kuartet.mbois.ui.screens
 
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.media.AudioAttributes
 import android.media.MediaPlayer
-import android.net.Uri
 import android.view.ViewGroup
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -70,6 +71,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.net.toUri
 import com.kuartet.mbois.ui.theme.BrownDark
 import com.kuartet.mbois.ui.theme.CreamBackground
 import com.kuartet.mbois.ui.theme.OrangePrimary
@@ -85,6 +87,7 @@ data class ChatMessage(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("SetJavaScriptEnabled")
+@Suppress("ComposableTargetMarker", "ComposableTarget")
 @Composable
 fun InteractiveScreen(
     cardId: String,
@@ -163,7 +166,7 @@ fun InteractiveScreen(
                 mediaPlayer.start()
                 isPlaying = true
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             Toast.makeText(context, "Gagal memutar audio", Toast.LENGTH_SHORT).show()
         }
     }
@@ -175,29 +178,34 @@ fun InteractiveScreen(
             try {
                 context.startActivity(intent)
                 return
-            } catch (e: Exception) {
+            } catch (_: Exception) {
             }
 
             val sceneViewerUrl = intent.dataString
             if (!sceneViewerUrl.isNullOrEmpty()) {
                 try {
-                    val viewIntent = Intent(Intent.ACTION_VIEW, Uri.parse(sceneViewerUrl))
+                    val viewIntent = Intent(
+                        Intent.ACTION_VIEW,
+                        sceneViewerUrl.toUri()
+                    )
                     context.startActivity(viewIntent)
                     return
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                 }
             }
 
             val fallbackUrl = intent.getStringExtra("browser_fallback_url")
             if (!fallbackUrl.isNullOrEmpty()) {
                 try {
-                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(fallbackUrl))
+                    val browserIntent = Intent(
+                        Intent.ACTION_VIEW,
+                        fallbackUrl.toUri()
+                    )
                     context.startActivity(browserIntent)
                     return
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                 }
             }
-
             Toast.makeText(context, "Aplikasi AR tidak ditemukan", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -292,6 +300,7 @@ fun InteractiveScreen(
                                             return handleUrl(request?.url?.toString())
                                         }
 
+                                        @Suppress("OVERRIDE_DEPRECATION")
                                         @Deprecated("Deprecated in Java")
                                         override fun shouldOverrideUrlLoading(
                                             view: WebView?,

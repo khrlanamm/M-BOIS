@@ -62,6 +62,7 @@ import com.kuartet.mbois.ui.theme.OrangePrimary
 import com.kuartet.mbois.ui.theme.PoppinsFontFamily
 import com.kuartet.mbois.ui.theme.White
 import com.kuartet.mbois.viewmodel.HomeViewModel
+import java.util.Locale
 import kotlinx.coroutines.delay
 
 @Composable
@@ -106,7 +107,7 @@ fun DetailScreen(
                         .setUsage(AudioAttributes.USAGE_MEDIA)
                         .build()
                 )
-                mediaPlayer.setDataSource(card!!.audioUrl)
+                mediaPlayer.setDataSource(card.audioUrl)
                 mediaPlayer.prepareAsync()
                 mediaPlayer.setOnPreparedListener { mp ->
                     isAudioLoading = false
@@ -147,7 +148,7 @@ fun DetailScreen(
                 mediaPlayer.start()
                 isPlaying = true
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             Toast.makeText(context, "Gagal memutar audio", Toast.LENGTH_SHORT).show()
         }
     }
@@ -156,7 +157,7 @@ fun DetailScreen(
         val totalSeconds = (millis / 1000).toLong()
         val minutes = totalSeconds / 60
         val seconds = totalSeconds % 60
-        return String.format("%02d:%02d", minutes, seconds)
+        return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
     }
 
     Scaffold(

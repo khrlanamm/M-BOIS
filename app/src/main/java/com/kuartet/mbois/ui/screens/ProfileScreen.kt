@@ -77,7 +77,7 @@ fun ProfileScreen(
 
     if (showLogoutDialog) {
         AlertDialog(
-            onDismissRequest = { showLogoutDialog = false },
+            onDismissRequest = { },
             title = {
                 Text(
                     text = "Konfirmasi Keluar",
@@ -94,7 +94,6 @@ fun ProfileScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        showLogoutDialog = false
                         isLoading = true
                         coroutineScope.launch {
                             delay(1500)
@@ -112,7 +111,7 @@ fun ProfileScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showLogoutDialog = false }) {
+                TextButton(onClick = { }) {
                     Text(
                         text = "Batal",
                         color = BrownDark,
@@ -333,7 +332,7 @@ fun ProfileScreen(
                 )
             } else {
                 Button(
-                    onClick = { showLogoutDialog = true },
+                    onClick = { },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),

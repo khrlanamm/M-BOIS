@@ -2,7 +2,6 @@ package com.kuartet.mbois.ui.screens
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -44,7 +43,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
@@ -63,6 +61,7 @@ import com.kuartet.mbois.ui.theme.PoppinsFontFamily
 import com.kuartet.mbois.ui.theme.White
 import com.kuartet.mbois.viewmodel.HomeViewModel
 import java.util.concurrent.Executors
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalGetImage::class)
 class QrCodeAnalyzer(private val onQrCodeScanned: (String) -> Unit) : ImageAnalysis.Analyzer {
@@ -129,7 +128,7 @@ fun ScanScreen(
     val onQrScanned: (String) -> Unit = onQrScanned@{ value ->
         if (showUnrecognizedDialog || showConfirmDialog) return@onQrScanned
         val uri = try {
-            Uri.parse(value)
+            value.toUri()
         } catch (_: Exception) {
             null
         }

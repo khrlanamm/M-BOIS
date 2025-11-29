@@ -1,7 +1,6 @@
 package com.kuartet.mbois.ui.screens
 
 import android.content.Intent
-import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -41,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -122,7 +122,7 @@ fun AuthScreen(
                 } else {
                     handleFailure("Tipe kredensial tidak dikenali.")
                 }
-            } catch (e: GetCredentialException) {
+            } catch (_: GetCredentialException) {
                 handleFailure("Login dibatalkan atau gagal.")
             } catch (e: Exception) {
                 handleFailure("Terjadi kesalahan: ${e.localizedMessage}")
@@ -212,8 +212,10 @@ fun AuthScreen(
                 color = Color.Gray,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.clickable {
-                    val browserIntent =
-                        Intent(Intent.ACTION_VIEW, Uri.parse("https://m-bois.web.app/privacy-policy"))
+                    val browserIntent = Intent(
+                        Intent.ACTION_VIEW,
+                        "https://m-bois.web.app/privacy-policy".toUri()
+                    )
                     context.startActivity(browserIntent)
                 }
             )
