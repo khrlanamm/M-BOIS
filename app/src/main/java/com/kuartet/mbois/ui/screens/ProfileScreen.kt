@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.google.firebase.auth.FirebaseAuth
+import com.kuartet.mbois.BuildConfig
 import com.kuartet.mbois.R
 import com.kuartet.mbois.ui.theme.BrownDark
 import com.kuartet.mbois.ui.theme.CreamBackground
@@ -111,7 +112,7 @@ fun ProfileScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { }) {
+                TextButton(onClick = { showLogoutDialog = false }) {
                     Text(
                         text = "Batal",
                         color = BrownDark,
@@ -300,7 +301,7 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        text = "Versi 1.0.0",
+                        text = BuildConfig.VERSION_NAME,
                         fontFamily = PoppinsFontFamily,
                         fontSize = 12.sp,
                         color = Color.Gray,
@@ -332,7 +333,7 @@ fun ProfileScreen(
                 )
             } else {
                 Button(
-                    onClick = { },
+                    onClick = { showLogoutDialog = true },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
