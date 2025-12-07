@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.kuartet.mbois.BuildConfig
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
+import com.kuartet.mbois.model.AiConfig
 import com.kuartet.mbois.model.MboisCard
 import com.kuartet.mbois.repository.CardRepository
 import com.kuartet.mbois.ui.screens.ChatMessage
@@ -29,8 +30,11 @@ class HomeViewModel : ViewModel() {
     private val _isAiLoading = MutableStateFlow(false)
     val isAiLoading: StateFlow<Boolean> = _isAiLoading
 
+    private var aiConfig = AiConfig()
+
     init {
         fetchCards()
+        fetchAiConfig()
     }
 
     fun fetchCards() {
@@ -56,6 +60,12 @@ class HomeViewModel : ViewModel() {
         }
     }
 
+    private fun fetchAiConfig() {
+        viewModelScope.launch {
+            aiConfig = repository.getAiConfig()
+        }
+    }
+
     fun getCardById(id: String): MboisCard? {
         val currentState = _uiState.value
         return if (currentState is HomeUiState.Success) {
@@ -68,21 +78,16 @@ class HomeViewModel : ViewModel() {
     fun initChatSession(card: MboisCard) {
         chatMessages.clear()
 
-        val systemInstruction = """
-            Anda adalah AI ChatBot resmi dari aplikasi M-BOIS.
-            Tugas anda hanya menjawab pertanyaan seputar "${card.name}" yang merupakan kategori "${card.categoryName}" di Jawa Timur.
-            
-            Aturan:
-            1. Jika user bertanya tentang ${card.name}, jelaskan dengan detail, menarik, dan sopan.
-            2. Jika user bertanya hal lain di luar konteks ${card.name} atau budaya Jawa Timur, tolak dengan halus.
-            3. Contoh penolakan: "Maaf, saya adalah AI M-BOIS yang hanya dapat mendiskusikan tentang ${card.name}."
-            4. Gunakan Bahasa Indonesia yang komunikatif namun tetap santai.
-        """.trimIndent()
+        val finalInstruction = aiConfig.systemInstructionTemplate
+            .replace("{card_name}", card.name)
+            .replace("{category_name}", card.categoryName)
+
+        val modelName = if (aiConfig.modelName.isNotEmpty()) aiConfig.modelName else "gemini-2.5-flash"
 
         val generativeModel = GenerativeModel(
-            modelName = "gemini-2.5-pro",
+            modelName = modelName,
             apiKey = BuildConfig.GEMINI_API_KEY,
-            systemInstruction = content { text(systemInstruction) }
+            systemInstruction = content { text(finalInstruction) }
         )
 
         chatSession = generativeModel.startChat()
