@@ -21,23 +21,18 @@ Firestore holds the content, so cards and AI settings change without a new build
 - `mboisai/config`: the Gemini model name and the system instruction template. The template fills in `{card_name}` and `{category_name}` for the card being discussed.
 - `activity/{email}`: the last time each user opened the app.
 
-Firebase App Check uses Play Integrity in release builds and the debug provider in debug builds.
+Gemini is called through Firebase AI Logic (Gemini Developer API), so the app ships no Gemini API key. Firebase App Check guards those calls, with Play Integrity in release builds and the debug provider in debug builds.
 
 ## Stack
 
-Kotlin, Jetpack Compose, Material 3, Navigation Compose, CameraX, ML Kit Barcode Scanning, Firebase Authentication, Firestore, and App Check, Credential Manager, Google AI client SDK (Gemini), Coil, Compose Markdown.
+Kotlin, Jetpack Compose, Material 3, Navigation Compose, CameraX, ML Kit Barcode Scanning, Firebase Authentication, Firestore, and App Check, Credential Manager, Firebase AI Logic (Gemini), Coil, Compose Markdown.
 
 Minimum SDK 24 (Android 7.0), target SDK 36.
 
 ## Build
 
-1. Create a Firebase project with Authentication (Google) and Firestore, then put its `google-services.json` in `app/`. The file is not committed.
-2. Add a Gemini API key to `local.properties`:
-
-   ```properties
-   GEMINI_API_KEY=your_gemini_api_key
-   ```
-
+1. Create a Firebase project with Authentication (Google), Firestore, and Firebase AI Logic (Gemini Developer API), then put its `google-services.json` in `app/`. The file is not committed.
+2. For debug builds, register the App Check debug token printed in Logcat in the Firebase Console (App Check, Apps, Manage debug tokens).
 3. Build:
 
    ```sh

@@ -3,9 +3,11 @@ package com.kuartet.mbois.viewmodel
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kuartet.mbois.BuildConfig
-import com.google.ai.client.generativeai.GenerativeModel
-import com.google.ai.client.generativeai.type.content
+import com.google.firebase.Firebase
+import com.google.firebase.ai.Chat
+import com.google.firebase.ai.ai
+import com.google.firebase.ai.type.GenerativeBackend
+import com.google.firebase.ai.type.content
 import com.kuartet.mbois.model.AiConfig
 import com.kuartet.mbois.model.MboisCard
 import com.kuartet.mbois.repository.CardRepository
@@ -26,7 +28,7 @@ class HomeViewModel : ViewModel() {
     val uiState: StateFlow<HomeUiState> = _uiState
 
     val chatMessages = mutableStateListOf<ChatMessage>()
-    private var chatSession: com.google.ai.client.generativeai.Chat? = null
+    private var chatSession: Chat? = null
     private val _isAiLoading = MutableStateFlow(false)
     val isAiLoading: StateFlow<Boolean> = _isAiLoading
 
@@ -84,9 +86,8 @@ class HomeViewModel : ViewModel() {
 
         val modelName = if (aiConfig.modelName.isNotEmpty()) aiConfig.modelName else "gemini-2.5-flash"
 
-        val generativeModel = GenerativeModel(
+        val generativeModel = Firebase.ai(backend = GenerativeBackend.googleAI()).generativeModel(
             modelName = modelName,
-            apiKey = BuildConfig.GEMINI_API_KEY,
             systemInstruction = content { text(finalInstruction) }
         )
 

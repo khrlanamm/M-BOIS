@@ -1,4 +1,3 @@
-import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -7,15 +6,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.gms.google.services)
 }
-
-val localProperties = Properties().apply {
-    val file = rootProject.file("local.properties")
-    if (file.exists()) {
-        load(file.inputStream())
-    }
-}
-
-val geminiApiKey: String = localProperties.getProperty("GEMINI_API_KEY") ?: ""
 
 android {
     namespace = "com.kuartet.mbois"
@@ -27,12 +17,10 @@ android {
         applicationId = "com.kuartet.mbois"
         minSdk = 24
         targetSdk = 36
-        versionCode = 9
-        versionName = "MBOIS.v.1.9"
+        versionCode = 10
+        versionName = "MBOIS.v.1.10"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
     }
 
     buildTypes {
@@ -86,7 +74,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.generativeai)
+    implementation(libs.firebase.ai)
     implementation(libs.compose.markdown)
 
     implementation(libs.androidx.camera.core)
