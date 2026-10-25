@@ -17,7 +17,7 @@ Companion Android app for M-BOIS Kuartet, a card game about the history, arts, a
 ## Architecture
 
 ```mermaid
-flowchart LR
+flowchart TB
   card["Physical card<br>QR code"]
   subgraph App["Android app (Kotlin, Compose)"]
     scan["CameraX + ML Kit<br>barcode scanning"]
