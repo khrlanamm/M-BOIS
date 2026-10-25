@@ -10,6 +10,9 @@ import com.google.firebase.ai.type.GenerativeBackend
 import com.google.firebase.ai.type.content
 import com.kuartet.mbois.model.AiConfig
 import com.kuartet.mbois.model.MboisCard
+import com.kuartet.mbois.model.buildSystemInstruction
+import com.kuartet.mbois.model.groupCardsByCategory
+import com.kuartet.mbois.model.resolveModelName
 import com.kuartet.mbois.repository.CardRepository
 import com.kuartet.mbois.ui.screens.ChatMessage
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,14 +48,7 @@ class HomeViewModel : ViewModel() {
             try {
                 val cards = repository.getAllCards()
                 if (cards.isNotEmpty()) {
-                    val sortedCards = cards.sortedWith(
-                        compareBy(
-                            { it.categoryId },
-                            { it.cardIndex }
-                        )
-                    )
-                    val grouped = sortedCards.groupBy { it.categoryName }
-                    _uiState.value = HomeUiState.Success(grouped)
+                    _uiState.value = HomeUiState.Success(groupCardsByCategory(cards))
                 } else {
                     _uiState.value = HomeUiState.Error("Data tidak ditemukan")
                 }
@@ -80,14 +76,10 @@ class HomeViewModel : ViewModel() {
     fun initChatSession(card: MboisCard) {
         chatMessages.clear()
 
-        val finalInstruction = aiConfig.systemInstructionTemplate
-            .replace("{card_name}", card.name)
-            .replace("{category_name}", card.categoryName)
-
-        val modelName = if (aiConfig.modelName.isNotEmpty()) aiConfig.modelName else "gemini-2.5-flash"
+        val finalInstruction = buildSystemInstruction(aiConfig.systemInstructionTemplate, card)
 
         val generativeModel = Firebase.ai(backend = GenerativeBackend.googleAI()).generativeModel(
-            modelName = modelName,
+            modelName = resolveModelName(aiConfig),
             systemInstruction = content { text(finalInstruction) }
         )
 

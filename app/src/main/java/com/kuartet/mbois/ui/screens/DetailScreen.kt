@@ -62,7 +62,6 @@ import com.kuartet.mbois.ui.theme.OrangePrimary
 import com.kuartet.mbois.ui.theme.PoppinsFontFamily
 import com.kuartet.mbois.ui.theme.White
 import com.kuartet.mbois.viewmodel.HomeViewModel
-import java.util.Locale
 import kotlinx.coroutines.delay
 
 @Composable
@@ -151,13 +150,6 @@ fun DetailScreen(
         } catch (_: Exception) {
             Toast.makeText(context, "Gagal memutar audio", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    fun formatTime(millis: Float): String {
-        val totalSeconds = (millis / 1000).toLong()
-        val minutes = totalSeconds / 60
-        val seconds = totalSeconds % 60
-        return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
     }
 
     Scaffold(
@@ -306,13 +298,13 @@ fun DetailScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = formatTime(currentPosition),
+                                text = formatPlaybackTime(currentPosition),
                                 fontFamily = PoppinsFontFamily,
                                 fontSize = 12.sp,
                                 color = BrownDark
                             )
                             Text(
-                                text = formatTime(totalDuration),
+                                text = formatPlaybackTime(totalDuration),
                                 fontFamily = PoppinsFontFamily,
                                 fontSize = 12.sp,
                                 color = BrownDark

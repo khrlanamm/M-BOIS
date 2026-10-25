@@ -5,7 +5,7 @@ import com.google.firebase.firestore.PropertyName
 data class AiConfig(
     @get:PropertyName("model_name")
     @set:PropertyName("model_name")
-    var modelName: String = "gemini-2.5-flash",
+    var modelName: String = DEFAULT_MODEL_NAME,
 
     @get:PropertyName("system_instruction_template")
     @set:PropertyName("system_instruction_template")
