@@ -153,17 +153,7 @@ Dikembangkan oleh **Tim M-BOIS**
 
 ## 📄 Lisensi
 
-Copyright © 2025 Tim M-BOIS. All rights reserved.
-
-## 🤝 Kontribusi
-
-Untuk berkontribusi pada project ini, silakan:
-
-1. Fork repository
-2. Buat branch fitur (`git checkout -b feature/AmazingFeature`)
-3. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
-4. Push ke branch (`git push origin feature/AmazingFeature`)
-5. Buat Pull Request
+Copyright © 2025 Tim M-BOIS. All rights reserved. Kode sumber dibuka hanya untuk referensi. Lihat [LICENSE](LICENSE).
 
 ## 📞 Kontak
 
