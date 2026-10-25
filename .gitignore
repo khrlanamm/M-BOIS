@@ -16,3 +16,6 @@ local.properties
 
 # Firebase config, downloaded per developer
 app/google-services.json
+
+# Signed release bundles
+/app/release/
