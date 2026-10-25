@@ -1,164 +1,57 @@
-# M-BOIS (Aplikasi Android Pendamping M-BOIS Kuartet)
+# M-BOIS
 
-Aplikasi Android edukasi interaktif berbasis kartu AR (Augmented Reality) yang menggunakan teknologi AI untuk memberikan pengalaman belajar yang menarik dan inovatif.
+![M-BOIS feature graphic](https://raw.githubusercontent.com/khrlanamm/khrlanamm/main/assets/projects/mbois.webp)
 
-## 📱 Tentang Aplikasi
+Companion Android app for M-BOIS Kuartet, a card game about the history, arts, and food of East Java. Scanning a physical card opens its 3D object in AR, an audio narration, and a Gemini assistant that answers questions about that card. Top 50 of the student category at BudayaGO! 2025.
 
-M-BOIS adalah aplikasi mobile yang menggabungkan teknologi pemindaian kartu, AR, dan AI untuk menciptakan pengalaman pembelajaran interaktif. Pengguna dapat memindai kartu fisik untuk mengakses konten edukatif dengan visualisasi 3D dan berinteraksi dengan AI assistant.
+[Google Play](https://play.google.com/store/apps/details?id=com.kuartet.mbois) | [Website](https://m-bois.web.app)
 
-## ✨ Fitur Utama
+## Features
 
-- **Autentikasi Pengguna**: Login menggunakan Google Sign-In dengan Firebase Authentication
-- **Onboarding Screen**: Pengenalan aplikasi untuk pengguna baru
-- **Pemindaian Kartu**: Teknologi barcode scanning untuk mendeteksi kartu fisik
-- **Katalog Kartu**: Tampilan koleksi kartu edukatif berdasarkan kategori
-- **Detail Kartu**: Informasi lengkap setiap kartu dengan gambar, audio, dan deskripsi
-- **Mode Interaktif**: Integrasi dengan Gemini AI untuk pembelajaran interaktif
-- **AR Support**: Dukungan konten Augmented Reality (AR)
-- **Profil Pengguna**: Manajemen akun dan preferensi pengguna
+- **Card catalog**: every card grouped by category, with its image, short and full description, and audio narration.
+- **Card scan**: point the camera at the QR code on a physical card to open its page (CameraX and ML Kit).
+- **Interactive mode**: the card's 3D object in AR next to a Gemini chat about the card.
+- Google sign-in, onboarding for new users, and a profile screen with the app version and logout.
 
-## 🛠️ Teknologi yang Digunakan
+## Data
 
-### Framework & UI
+Firestore holds the content, so cards and AI settings change without a new build:
 
-- **Jetpack Compose**: Modern UI toolkit untuk Android
-- **Material Design 3**: Desain UI yang konsisten dan modern
-- **Navigation Compose**: Navigasi antar screen
+- `cards`: name, category, descriptions, and the URLs of the card image, icon, audio, and AR object.
+- `mboisai/config`: the Gemini model name and the system instruction template. The template fills in `{card_name}` and `{category_name}` for the card being discussed.
+- `activity/{email}`: the last time each user opened the app.
 
-### Backend & Database
+Firebase App Check uses Play Integrity in release builds and the debug provider in debug builds.
 
-- **Firebase Authentication**: Autentikasi pengguna dengan Google Sign-In
-- **Firebase Firestore**: Database cloud untuk menyimpan data kartu
-- **Google Play Services**: Integrasi layanan Google
+## Stack
 
-### AI & ML
+Kotlin, Jetpack Compose, Material 3, Navigation Compose, CameraX, ML Kit Barcode Scanning, Firebase Authentication, Firestore, and App Check, Credential Manager, Google AI client SDK (Gemini), Coil, Compose Markdown.
 
-- **Gemini AI**: Chatbot interaktif untuk pembelajaran
-- **ML Kit Barcode Scanning**: Pemindaian barcode pada kartu
+Minimum SDK 24 (Android 7.0), target SDK 36.
 
-### Camera & AR
+## Build
 
-- **CameraX**: API kamera modern untuk pemindaian
-- **Accompanist Permissions**: Manajemen permission runtime
+1. Create a Firebase project with Authentication (Google) and Firestore, then put its `google-services.json` in `app/`. The file is not committed.
+2. Add a Gemini API key to `local.properties`:
 
-### Media & Networking
+   ```properties
+   GEMINI_API_KEY=your_gemini_api_key
+   ```
 
-- **Coil**: Image loading library dengan dukungan network
-- **OkHttp**: HTTP client untuk networking
-- **Compose Markdown**: Rendering konten markdown
+3. Build:
 
-## 📋 Persyaratan
+   ```sh
+   ./gradlew :app:assembleDebug
+   ```
 
-- **Minimum SDK**: Android 7.0 (API 24)
-- **Target SDK**: Android 14 (API 36)
-- **Compile SDK**: Android 14 (API 36)
-- **Kotlin**: 1.9+
-- **Gradle**: 8.0+
+## Team
 
-## 🔧 Setup dan Instalasi
+Developed by Tim M-BOIS. Lead developer: Khoirul Anam (khoirulanam1604@mail.ugm.ac.id).
 
-### 1. Clone Repository
+## License
 
-```bash
-git clone https://github.com/khrlanamm/M-BOIS.git
-cd M-BOIS
-```
-
-### 2. Konfigurasi Firebase
-
-- Buat project baru di [Firebase Console](https://console.firebase.google.com/)
-- Download file `google-services.json`
-- Letakkan file tersebut di folder `app/`
-- Aktifkan Firebase Authentication dan Firestore
-
-### 3. Konfigurasi API Key
-
-Buat file `local.properties` di root project dan tambahkan:
-
-```properties
-GEMINI_API_KEY=your_gemini_api_key_here
-```
-
-### 4. Build dan Run
-
-```bash
-./gradlew clean build
-./gradlew installDebug
-```
-
-Atau gunakan Android Studio:
-
-- Buka project di Android Studio
-- Sync Gradle files
-- Run aplikasi di emulator atau device fisik
-
-## 📦 Struktur Project
-
-```
-com.kuartet.mbois/
-├── model/              # Data models
-├── repository/         # Data layer
-├── viewmodel/          # ViewModels
-├── ui/
-│   ├── components/     # Reusable UI components
-│   ├── screens/        # Screen composables
-│   └── theme/          # Theme configuration
-└── navigation/         # Navigation setup
-```
-
-## 🎯 Flow Aplikasi
-
-1. **OnBoarding** → Pengenalan aplikasi
-2. **Authentication** → Login dengan Google
-3. **Home** → Katalog kartu berdasarkan kategori
-4. **Scan** → Pemindaian kartu fisik
-5. **Detail** → Informasi lengkap kartu
-6. **Interactive** → Chat dengan AI tentang konten kartu
-7. **Profile** → Pengaturan akun
-
-## 🔐 Permissions
-
-Aplikasi memerlukan permission berikut:
-
-- **CAMERA**: Untuk pemindaian barcode pada kartu
-- **INTERNET**: Untuk koneksi ke Firebase dan Gemini AI
-
-## 📝 Dependencies Utama
-
-```text
-// Jetpack Compose
-androidx.compose.ui
-androidx.compose.material3
-androidx.navigation.compose
-
-// Firebase
-com.google.firebase:firebase-auth
-com.google.firebase:firebase-firestore
-
-// AI & ML
-com.google.ai.client.generativeai
-com.google.mlkit:barcode-scanning
-
-// Camera
-androidx.camera:camera-camera2
-androidx.camera:camera-lifecycle
-
-// Image Loading
-io.coil-kt:coil-compose
-```
-
-## 👥 Tim Pengembang
-
-Dikembangkan oleh **Tim M-BOIS**
-
-## 📄 Lisensi
-
-Copyright © 2025 Tim M-BOIS. All rights reserved. Kode sumber dibuka hanya untuk referensi. Lihat [LICENSE](LICENSE).
-
-## 📞 Kontak
-
-Ketua Pengembang: khoirulanam1604@mail.ugm.ac.id
+Copyright © 2025 Tim M-BOIS. All rights reserved. The source code is public for reference only. See [LICENSE](LICENSE). The Poppins font in `app/src/main/res/font/` is licensed separately under the SIL Open Font License.
 
 ---
 
-**M-BOIS** - Main Budaya, Ojo Ilang Saklawase!
+**M-BOIS**: Main Budaya, Ojo Ilang Saklawase!
