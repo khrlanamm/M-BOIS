@@ -1,10 +1,42 @@
 # M-BOIS
 
+[![CI](https://github.com/khrlanamm/M-BOIS/actions/workflows/ci.yml/badge.svg)](https://github.com/khrlanamm/M-BOIS/actions/workflows/ci.yml)
+
 ![M-BOIS feature graphic](https://raw.githubusercontent.com/khrlanamm/khrlanamm/main/assets/projects/mbois.webp)
 
 Companion Android app for M-BOIS Kuartet, a card game about the history, arts, and food of East Java. Scanning a physical card opens its 3D object in AR, an audio narration, and a Gemini assistant that answers questions about that card. Top 50 of the student category at BudayaGO! 2025.
 
 [Google Play](https://play.google.com/store/apps/details?id=com.kuartet.mbois) | [Website](https://m-bois.web.app)
+
+## Screenshots
+
+| Card scan | Gemini chat | AR object |
+|---|---|---|
+| <img src="docs/images/scan.webp" alt="Scanning the QR code on a physical M-BOIS card" width="220"> | <img src="docs/images/chatbot.webp" alt="Interactive card page with a 3D object and the Gemini chat" width="220"> | <img src="docs/images/ar.webp" alt="Traditional drums from a card placed on a floor in AR" width="220"> |
+
+## Architecture
+
+```mermaid
+flowchart LR
+  card["Physical card<br>QR code"]
+  subgraph App["Android app (Kotlin, Compose)"]
+    scan["CameraX + ML Kit<br>barcode scanning"]
+    ui["Card pages<br>audio narration"]
+    web["WebView<br>3D object"]
+  end
+  subgraph Firebase
+    auth["Authentication<br>Google sign-in"]
+    fs[("Firestore<br>cards, mboisai/config")]
+    check["App Check<br>Play Integrity"]
+    ai["Firebase AI Logic<br>Gemini Developer API"]
+  end
+  sv["Scene Viewer<br>AR on the floor"]
+  card --> scan --> ui
+  ui --> auth
+  ui -->|card content, model name, prompt template| fs
+  ui -->|chat about the card| check --> ai
+  ui --> web -->|intent| sv
+```
 
 ## Features
 
@@ -38,6 +70,14 @@ Minimum SDK 24 (Android 7.0), target SDK 36.
    ```sh
    ./gradlew :app:assembleDebug
    ```
+
+## Tests
+
+```sh
+./gradlew testDebugUnitTest
+```
+
+Unit tests cover card grouping and ordering, the Gemini prompt template and model fallback, playback time formatting, and navigation routes. CI runs them on every push.
 
 ## Team
 
