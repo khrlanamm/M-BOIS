@@ -57,6 +57,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,6 +73,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
+import com.kuartet.mbois.ui.components.ArSafetyDialog
 import com.kuartet.mbois.ui.theme.BrownDark
 import com.kuartet.mbois.ui.theme.CreamBackground
 import com.kuartet.mbois.ui.theme.OrangePrimary
@@ -107,6 +109,9 @@ fun InteractiveScreen(
     val listState = rememberLazyListState()
 
     var webViewRef by remember { mutableStateOf<WebView?>(null) }
+
+    var arWarningAccepted by rememberSaveable { mutableStateOf(false) }
+    var pendingArIntentUrl by remember { mutableStateOf<String?>(null) }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -269,7 +274,9 @@ fun InteractiveScreen(
                         .fillMaxWidth()
                         .background(Color(0xFFF5F5F5))
                 ) {
-                    if (!card.arUrl.isNullOrEmpty()) {
+                    if (!arWarningAccepted) {
+                        Box(modifier = Modifier.fillMaxSize())
+                    } else if (!card.arUrl.isNullOrEmpty()) {
                         AndroidView(
                             factory = { ctx ->
                                 WebView(ctx).apply {
@@ -286,7 +293,7 @@ fun InteractiveScreen(
                                             if (url == null) return false
 
                                             if (url.startsWith("intent://")) {
-                                                openIntentUrl(url)
+                                                pendingArIntentUrl = url
                                                 return true
                                             }
 
@@ -342,7 +349,7 @@ fun InteractiveScreen(
                         )
                     }
 
-                    if (!card.arUrl.isNullOrEmpty()) {
+                    if (arWarningAccepted && !card.arUrl.isNullOrEmpty()) {
                         IconButton(
                             onClick = { webViewRef?.reload() },
                             colors = IconButtonDefaults.iconButtonColors(
@@ -514,6 +521,24 @@ fun InteractiveScreen(
                 }
             }
         }
+    }
+
+    if (!arWarningAccepted) {
+        ArSafetyDialog(
+            onConfirm = { arWarningAccepted = true },
+            onDismiss = onBack
+        )
+    }
+
+    pendingArIntentUrl?.let { url ->
+        ArSafetyDialog(
+            onConfirm = {
+                pendingArIntentUrl = null
+                openIntentUrl(url)
+            },
+            onDismiss = { pendingArIntentUrl = null },
+            dismissLabel = "Batal"
+        )
     }
 }
 

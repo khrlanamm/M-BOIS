@@ -17,8 +17,8 @@ android {
         applicationId = "com.kuartet.mbois"
         minSdk = 24
         targetSdk = 36
-        versionCode = 10
-        versionName = "MBOIS.v.1.10"
+        versionCode = 11
+        versionName = "MBOIS.v.1.11"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
